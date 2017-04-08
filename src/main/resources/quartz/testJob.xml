@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+   
+     <!-- 把MyJob类加入到spring容器管理 -->
+    <bean id="testJobref" class="com.crscic.build.data.job.TestJob"/>
+ 
+    <!-- 配置job指定需要调度的对象，指定方法 -->
+    <bean id="testJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="testJobref"/>
+        <property name="targetMethod" value="jobmethod"/>
+    </bean>
+   
+    <!-- (1)SimpleTrigger配置无限重复计数时间触发器 -->
+    <bean id="testJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="testJob"/>
+        <property name="repeatInterval" value="15000"/><!--每15秒触发一次-->
+        <property name="startDelay" value="3000"/>
+    </bean>
+   
+    <!-- (2)CronTrigger配置定时时间触发器 -->
+    <bean id="testJobCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="testJob"/>
+        <property name="cronExpression" value="0 * 16 * * ?"/><!--每天16点0分到16点59分每分钟触发一次-->
+    </bean>
+   
+    <!-- 配置调度对象，用于运行触发器 -->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="testJobTrigger"/>  
+               <!--   <ref bean="testJobCronTrigger"/> -->
+            </list>
+        </property>
+    </bean>
+</beans>

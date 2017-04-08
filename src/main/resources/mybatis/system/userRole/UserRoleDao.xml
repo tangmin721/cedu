@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.system.dao.UserRoleDao">
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into sys_user_role (userid,roleid)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.userId},#{item.roleId})
+		</foreach>
+	</insert>
+	
+	<!--根据userId批量删除userRole-->
+	<delete id="deleteByUserId" parameterType="long">
+		delete from sys_user_role where userid = #{userId}
+	</delete>
+	
+	<!--根据roleId批量删除userRole-->
+	<delete id="deleteByRoleId" parameterType="long">
+		delete from sys_user_role where roleid = #{roleId}
+	</delete>
+	
+	<!--根据userId获取List<Role>-->
+	<select id="selectRolesByUserId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.RoleDao.role">
+		select r.id,r.name,r.code from sys_role r,sys_user_role ur 
+		where
+		ur.userid=#{userId} and r.id=ur.roleid and r.deleted=0 and r.active=1 order by r.id
+	</select>
+	
+	<!--根据roleId获取List<User>  此方法在用户量大的时候请不要 用，如果要用，再分页-->
+	<select id="selectUsersByRoleId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.UserDao.user">
+		select u.id,u.realname,u.loginname from sys_user u,sys_user_role ur
+		where
+		ur.roleid=#{roleId} and u.id=ur.userid and u.status=1
+	</select>
+	
+	<!--根据userId获取未分配的角色List<Role>-->
+	<select id="selectNotRolesByUserId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.RoleDao.role">
+		select t.id,t.name,t.code from sys_role t where t.active=1 and t.deleted=0 and t.id not in(select r.id from sys_role r,sys_user_role ur 
+		where
+		ur.userid=#{userId} and r.id=ur.roleid and r.deleted=0 and r.active=1)
+	</select>
+	
+	<!--根据roleId获取未分配的用户List<User>此方法在用户量大的时候请不要 用，如果要用，再分页-->
+	<select id="selectNotUsersByRoleId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.UserDao.user">
+		select t.id,t.realname,t.loginname from sys_user t where t.status=1 and deleted=0 and t.id not in(select u.id from sys_user u,sys_user_role ur
+		where
+		ur.roleid=#{roleId} and u.id=ur.userid and u.status=1)
+	</select>
+	
+</mapper>

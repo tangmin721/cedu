@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherQualificationDao">
+	
+	<sql id="table"> t_tch_qualify </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,seq,qualifytype,qualifyno,sbuject,certificatedate,issueagency,firstregistdate,firstregistresult,fixregistdate,fixregistresult </sql>
+	
+	<sql id="listcolumns"> o.* </sql>
+	
+	<resultMap id="teacherQualification" type="TeacherQualification">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="seq" column="seq" />
+		<result property="qualifyType" column="qualifytype" />
+		<result property="qualifyNo" column="qualifyno" />
+		<result property="sbuject" column="sbuject" />
+		<result property="certificateDate" column="certificatedate" />
+		<result property="issueAgency" column="issueagency" />
+		<result property="firstRegistDate" column="firstregistdate" />
+		<result property="firstRegistResult" column="firstregistresult" />
+		<result property="fixRegistDate" column="fixregistdate" />
+		<result property="fixRegistResult" column="fixregistresult" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherQualification" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="seq != null">seq,</if>
+			<if test="qualifyType != null">qualifytype,</if>
+			<if test="qualifyNo != null">qualifyno,</if>
+			<if test="sbuject != null">sbuject,</if>
+			<if test="certificateDate != null">certificatedate,</if>
+			<if test="issueAgency != null">issueagency,</if>
+			<if test="firstRegistDate != null">firstregistdate,</if>
+			<if test="firstRegistResult != null">firstregistresult,</if>
+			<if test="fixRegistDate != null">fixregistdate,</if>
+			<if test="fixRegistResult != null">fixregistresult</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="qualifyType != null">#{qualifyType},</if>
+			<if test="qualifyNo != null">#{qualifyNo},</if>
+			<if test="sbuject != null">#{sbuject},</if>
+			<if test="certificateDate != null">#{certificateDate},</if>
+			<if test="issueAgency != null">#{issueAgency},</if>
+			<if test="firstRegistDate != null">#{firstRegistDate},</if>
+			<if test="firstRegistResult != null">#{firstRegistResult},</if>
+			<if test="fixRegistDate != null">#{fixRegistDate},</if>
+			<if test="fixRegistResult != null">#{fixRegistResult}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.seq},#{item.qualifyType},#{item.qualifyNo},#{item.sbuject},#{item.certificateDate},#{item.issueAgency},#{item.firstRegistDate},#{item.firstRegistResult},#{item.fixRegistDate},#{item.fixRegistResult})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherQualification">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherQualification" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherQualification">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			seq = #{seq},
+			qualifytype = #{qualifyType},
+			qualifyno = #{qualifyNo},
+			sbuject = #{sbuject},
+			certificatedate = #{certificateDate},
+			issueagency = #{issueAgency},
+			firstregistdate = #{firstRegistDate},
+			firstregistresult = #{firstRegistResult},
+			fixregistdate = #{fixRegistDate},
+			fixregistresult = #{fixRegistResult}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_@TODO s ON o.@TODO=s.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and o.seq=#{seq}</if>
+				<if test="seqLike == true"> and o.seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<if test="qualifyType != null and qualifyType !=''"> 
+				<if test="qualifyTypeLike == false"> and o.qualifytype=#{qualifyType}</if>
+				<if test="qualifyTypeLike == true"> and o.qualifytype like  CONCAT('%',#{qualifyType},'%')</if>
+			</if>
+			<if test="qualifyNo != null and qualifyNo !=''"> 
+				<if test="qualifyNoLike == false"> and o.qualifyno=#{qualifyNo}</if>
+				<if test="qualifyNoLike == true"> and o.qualifyno like  CONCAT('%',#{qualifyNo},'%')</if>
+			</if>
+			<if test="sbuject != null and sbuject !=''"> 
+				<if test="sbujectLike == false"> and o.sbuject=#{sbuject}</if>
+				<if test="sbujectLike == true"> and o.sbuject like  CONCAT('%',#{sbuject},'%')</if>
+			</if>
+			<if test="certificateDate != null and certificateDate !=''"> 
+				<if test="certificateDateLike == false"> and o.certificatedate=#{certificateDate}</if>
+				<if test="certificateDateLike == true"> and o.certificatedate like  CONCAT('%',#{certificateDate},'%')</if>
+			</if>
+			<if test="issueAgency != null and issueAgency !=''"> 
+				<if test="issueAgencyLike == false"> and o.issueagency=#{issueAgency}</if>
+				<if test="issueAgencyLike == true"> and o.issueagency like  CONCAT('%',#{issueAgency},'%')</if>
+			</if>
+			<if test="firstRegistDate != null and firstRegistDate !=''"> 
+				<if test="firstRegistDateLike == false"> and o.firstregistdate=#{firstRegistDate}</if>
+				<if test="firstRegistDateLike == true"> and o.firstregistdate like  CONCAT('%',#{firstRegistDate},'%')</if>
+			</if>
+			<if test="firstRegistResult != null and firstRegistResult !=''"> 
+				<if test="firstRegistResultLike == false"> and o.firstregistresult=#{firstRegistResult}</if>
+				<if test="firstRegistResultLike == true"> and o.firstregistresult like  CONCAT('%',#{firstRegistResult},'%')</if>
+			</if>
+			<if test="fixRegistDate != null and fixRegistDate !=''"> 
+				<if test="fixRegistDateLike == false"> and o.fixregistdate=#{fixRegistDate}</if>
+				<if test="fixRegistDateLike == true"> and o.fixregistdate like  CONCAT('%',#{fixRegistDate},'%')</if>
+			</if>
+			<if test="fixRegistResult != null and fixRegistResult !=''"> 
+				<if test="fixRegistResultLike == false"> and o.fixregistresult=#{fixRegistResult}</if>
+				<if test="fixRegistResultLike == true"> and o.fixregistresult like  CONCAT('%',#{fixRegistResult},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherQualificationQuery" resultMap="teacherQualification">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherQualificationQuery" resultMap="teacherQualification">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherQualificationQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid = #{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

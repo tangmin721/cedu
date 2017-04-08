@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherMoralityDao">
+	
+	<sql id="table"> t_tch_morality </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,seq,assessdate,assessresult,unitname,honorlevel,honorname,honorstartdate,honordesc,honorawardunit,punishtype,punishreason,punishstartdate,punishdec,punishunit,punishdate,punishcanceldate,punishcancelreason </sql>
+	
+	<sql id="listcolumns"> o.*</sql>
+	
+	<resultMap id="teacherMorality" type="TeacherMorality">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="seq" column="seq" />
+		<result property="assessDate" column="assessdate" />
+		<result property="assessResult" column="assessresult" />
+		<result property="unitName" column="unitname" />
+		<result property="honorLevel" column="honorlevel" />
+		<result property="honorName" column="honorname" />
+		<result property="honorStartDate" column="honorstartdate" />
+		<result property="honorDesc" column="honordesc" />
+		<result property="honorAwardUnit" column="honorawardunit" />
+		<result property="punishType" column="punishtype" />
+		<result property="punishReason" column="punishreason" />
+		<result property="punishStartDate" column="punishstartdate" />
+		<result property="punishDec" column="punishdec" />
+		<result property="punishUnit" column="punishunit" />
+		<result property="punishDate" column="punishdate" />
+		<result property="punishCancelDate" column="punishcanceldate" />
+		<result property="punishCancelReason" column="punishcancelreason" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherMorality" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="seq != null">seq,</if>
+			<if test="assessDate != null">assessdate,</if>
+			<if test="assessResult != null">assessresult,</if>
+			<if test="unitName != null">unitname,</if>
+			<if test="honorLevel != null">honorlevel,</if>
+			<if test="honorName != null">honorname,</if>
+			<if test="honorStartDate != null">honorstartdate,</if>
+			<if test="honorDesc != null">honordesc,</if>
+			<if test="honorAwardUnit != null">honorawardunit,</if>
+			<if test="punishType != null">punishtype,</if>
+			<if test="punishReason != null">punishreason,</if>
+			<if test="punishStartDate != null">punishstartdate,</if>
+			<if test="punishDec != null">punishdec,</if>
+			<if test="punishUnit != null">punishunit,</if>
+			<if test="punishDate != null">punishdate,</if>
+			<if test="punishCancelDate != null">punishcanceldate,</if>
+			<if test="punishCancelReason != null">punishcancelreason</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="assessDate != null">#{assessDate},</if>
+			<if test="assessResult != null">#{assessResult},</if>
+			<if test="unitName != null">#{unitName},</if>
+			<if test="honorLevel != null">#{honorLevel},</if>
+			<if test="honorName != null">#{honorName},</if>
+			<if test="honorStartDate != null">#{honorStartDate},</if>
+			<if test="honorDesc != null">#{honorDesc},</if>
+			<if test="honorAwardUnit != null">#{honorAwardUnit},</if>
+			<if test="punishType != null">#{punishType},</if>
+			<if test="punishReason != null">#{punishReason},</if>
+			<if test="punishStartDate != null">#{punishStartDate},</if>
+			<if test="punishDec != null">#{punishDec},</if>
+			<if test="punishUnit != null">#{punishUnit},</if>
+			<if test="punishDate != null">#{punishDate},</if>
+			<if test="punishCancelDate != null">#{punishCancelDate},</if>
+			<if test="punishCancelReason != null">#{punishCancelReason}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.seq},#{item.assessDate},#{item.assessResult},#{item.unitName},#{item.honorLevel},#{item.honorName},#{item.honorStartDate},#{item.honorDesc},#{item.honorAwardUnit},#{item.punishType},#{item.punishReason},#{item.punishStartDate},#{item.punishDec},#{item.punishUnit},#{item.punishDate},#{item.punishCancelDate},#{item.punishCancelReason})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherMorality">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherMorality" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherMorality">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			seq = #{seq},
+			assessdate = #{assessDate},
+			assessresult = #{assessResult},
+			unitname = #{unitName},
+			honorlevel = #{honorLevel},
+			honorname = #{honorName},
+			honorstartdate = #{honorStartDate},
+			honordesc = #{honorDesc},
+			honorawardunit = #{honorAwardUnit},
+			punishtype = #{punishType},
+			punishreason = #{punishReason},
+			punishstartdate = #{punishStartDate},
+			punishdec = #{punishDec},
+			punishunit = #{punishUnit},
+			punishdate = #{punishDate},
+			punishcanceldate = #{punishCancelDate},
+			punishcancelreason = #{punishCancelReason}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_@TODO s ON o.@TODO=s.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and o.seq=#{seq}</if>
+				<if test="seqLike == true"> and o.seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<if test="assessDate != null and assessDate !=''"> 
+				<if test="assessDateLike == false"> and o.assessdate=#{assessDate}</if>
+				<if test="assessDateLike == true"> and o.assessdate like  CONCAT('%',#{assessDate},'%')</if>
+			</if>
+			<if test="assessResult != null and assessResult !=''"> 
+				<if test="assessResultLike == false"> and o.assessresult=#{assessResult}</if>
+				<if test="assessResultLike == true"> and o.assessresult like  CONCAT('%',#{assessResult},'%')</if>
+			</if>
+			<if test="unitName != null and unitName !=''"> 
+				<if test="unitNameLike == false"> and o.unitname=#{unitName}</if>
+				<if test="unitNameLike == true"> and o.unitname like  CONCAT('%',#{unitName},'%')</if>
+			</if>
+			<if test="honorLevel != null and honorLevel !=''"> 
+				<if test="honorLevelLike == false"> and o.honorlevel=#{honorLevel}</if>
+				<if test="honorLevelLike == true"> and o.honorlevel like  CONCAT('%',#{honorLevel},'%')</if>
+			</if>
+			<if test="honorName != null and honorName !=''"> 
+				<if test="honorNameLike == false"> and o.honorname=#{honorName}</if>
+				<if test="honorNameLike == true"> and o.honorname like  CONCAT('%',#{honorName},'%')</if>
+			</if>
+			<if test="honorStartDate != null and honorStartDate !=''"> 
+				<if test="honorStartDateLike == false"> and o.honorstartdate=#{honorStartDate}</if>
+				<if test="honorStartDateLike == true"> and o.honorstartdate like  CONCAT('%',#{honorStartDate},'%')</if>
+			</if>
+			<if test="honorDesc != null and honorDesc !=''"> 
+				<if test="honorDescLike == false"> and o.honordesc=#{honorDesc}</if>
+				<if test="honorDescLike == true"> and o.honordesc like  CONCAT('%',#{honorDesc},'%')</if>
+			</if>
+			<if test="honorAwardUnit != null and honorAwardUnit !=''"> 
+				<if test="honorAwardUnitLike == false"> and o.honorawardunit=#{honorAwardUnit}</if>
+				<if test="honorAwardUnitLike == true"> and o.honorawardunit like  CONCAT('%',#{honorAwardUnit},'%')</if>
+			</if>
+			<if test="punishType != null and punishType !=''"> 
+				<if test="punishTypeLike == false"> and o.punishtype=#{punishType}</if>
+				<if test="punishTypeLike == true"> and o.punishtype like  CONCAT('%',#{punishType},'%')</if>
+			</if>
+			<if test="punishReason != null and punishReason !=''"> 
+				<if test="punishReasonLike == false"> and o.punishreason=#{punishReason}</if>
+				<if test="punishReasonLike == true"> and o.punishreason like  CONCAT('%',#{punishReason},'%')</if>
+			</if>
+			<if test="punishStartDate != null and punishStartDate !=''"> 
+				<if test="punishStartDateLike == false"> and o.punishstartdate=#{punishStartDate}</if>
+				<if test="punishStartDateLike == true"> and o.punishstartdate like  CONCAT('%',#{punishStartDate},'%')</if>
+			</if>
+			<if test="punishDec != null and punishDec !=''"> 
+				<if test="punishDecLike == false"> and o.punishdec=#{punishDec}</if>
+				<if test="punishDecLike == true"> and o.punishdec like  CONCAT('%',#{punishDec},'%')</if>
+			</if>
+			<if test="punishUnit != null and punishUnit !=''"> 
+				<if test="punishUnitLike == false"> and o.punishunit=#{punishUnit}</if>
+				<if test="punishUnitLike == true"> and o.punishunit like  CONCAT('%',#{punishUnit},'%')</if>
+			</if>
+			<if test="punishDate != null and punishDate !=''"> 
+				<if test="punishDateLike == false"> and o.punishdate=#{punishDate}</if>
+				<if test="punishDateLike == true"> and o.punishdate like  CONCAT('%',#{punishDate},'%')</if>
+			</if>
+			<if test="punishCancelDate != null and punishCancelDate !=''"> 
+				<if test="punishCancelDateLike == false"> and o.punishcanceldate=#{punishCancelDate}</if>
+				<if test="punishCancelDateLike == true"> and o.punishcanceldate like  CONCAT('%',#{punishCancelDate},'%')</if>
+			</if>
+			<if test="punishCancelReason != null and punishCancelReason !=''"> 
+				<if test="punishCancelReasonLike == false"> and o.punishcancelreason=#{punishCancelReason}</if>
+				<if test="punishCancelReasonLike == true"> and o.punishcancelreason like  CONCAT('%',#{punishCancelReason},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherMoralityQuery" resultMap="teacherMorality">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherMoralityQuery" resultMap="teacherMorality">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherMoralityQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid = #{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

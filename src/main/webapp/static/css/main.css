@@ -1,0 +1,66 @@
+.ss-table td {
+padding: 5px;
+border-bottom: 1px solid #dddddd;
+border-right: 1px solid #ddd;
+}
+.ss-table td.ss-lable{text-align: right;width: 120px;white-space:nowrap; overflow:hidden; background:#f4f8fb;}
+.cc-table{border-left:1px solid #dddddd;border-top:1px solid #ddd;}
+.cc-table td{padding:3px; border-bottom:1px solid #dddddd;border-right:1px solid #ddd;width: 120px;height:24px; *width: auto;border-top: 1px solid #dddddd;}
+.cc-table td.cc-lable{text-align: right;width: 120px; overflow:hidden; background:#f4f8fb; *width: auto;word-break:break-all;white-space:normal;}
+.cc-table td.cs-lable{text-align: left;width: 220px; overflow:hidden; background:#f4f8fb;}
+.ss-btn{width: 130px; overflow:hidden;margin: 0 auto;}
+.content-box{border:1px solid #dddddd;}
+.ss-btn a{background:url(images/btn_left.png) 0 0 no-repeat; float:left; position:relative; height:23px; padding-left: 18px; margin-right:5px;}
+.ss-btn a span{background:url(images/btn_bg.png) right 0 no-repeat;padding:3px 8px 4px 0;margin:0 0 0 8px;float:left;
+height:16px; color:#333;
+}
+.ss-btn a span:hover{color:blue;}
+.ss-btn a i.s-1{display:block; height:16px; width:16px; background:url(images/search-1.png) no-repeat; position:absolute; left:8px; top:4px;}
+.ss-btn a i.s-2{display:block; height:16px; width:16px; background:url(images/refresh-1.png) no-repeat; position:absolute; left:8px; top:4px;}
+.ss-btn a i.s-4{display:block; height:16px; width:16px; background:url(images/recycle_bin_empty.png) no-repeat; position:absolute; left:8px; top:4px;}
+h3.win-h3{height:30px; line-height:30px; padding-left:5px; font-weight: 700;background:#D2EDFE;color:#0E2D5F;}
+h2.win-h2{height:20px; line-height:20px; padding-left:5px; font-weight: 500;background:#e0edfe;color:#0E2D5F;}
+.nav{height:30px; line-height:30px;background:#e9f0fa;border-bottom:1px solid #b5c4e0;}
+.bt-red {
+color: red;
+padding-left: 5px;
+vertical-align: -3px;
+}
+.title-red{color:red;padding-left:10px;}
+
+.exportBtn_box {
+	min-width: 200px;
+	margin: 0 auto;
+}
+.exportBtn_box table {
+	margin-top: 10px;
+	margin-bottom: 5px;
+	border:0;
+}
+
+.exportBtn_box td {
+	list-style: none;
+	font-size: 12px;
+	color: #004178;
+	text-align: center;
+	line-height: 28px;
+	padding: 6px;
+}
+
+.export_btn {
+	width: 170px;
+	height: 28px;
+	background: url(images/exportBtn_bg.jpg) repeat-x;
+	border: 1px solid #68a7ce;
+	vertical-align: middle;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	cursor: pointer;
+}
+
+.export_btn img {
+	border: 0;
+	vertical-align: middle;
+	margin-right: 5px;
+}

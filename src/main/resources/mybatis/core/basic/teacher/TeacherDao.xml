@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherDao">
+	
+	<sql id="table"> t_teacher </sql>
+	<sql id="columns"> id,version,createtime,deleted,name,oldname,gender,tchworknum,nationality,papertype,idcard,birthday,path,nativer,birthplace,nation,politictype,marry,health,workday,joinschoolday,workerfrom1,workerfrom2,workertype1,workertype2,workertype3,workertype4,atschool,usepersontype,signcontract,isqrz,istjpx,istszs,computerability,ismian,isjoinbase,joinbasestart,joinbaseend,istj,istownupbone,ishealth,personstatus,isdoubletch,isprofesscard,workdatetimer,ispretch,ispretrain,status,remark,tno,type,province,city,town,school,memo,specStartDate </sql>
+	
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> o.*,p.provincename,c.cityname,t.townname,s.name as schoolname </sql>
+	
+	<!-- 仅供用于excel表格导出使用  -->
+	<sql id="listcolumnsExcel"> o.*,p.provincename,c.cityname,t.townname,s.name as schoolname,i.name as nationName,i1.name as genderName</sql>
+	
+	<!-- 用于查询教师详情使用  -->
+	<sql id="listcolumnsView"> o.*,s.schooltype schoolType,p.provincename,c.cityname,t.townname,s.name as schoolname,i1.name genderName,i2.name nationalityName,i3.name paperTypeName,i4.name nationName,i5.name politicTypeName,i6.name marryName,
+		i7.name healthName,i8.name workerFrom1Name,i9.name workerFrom2Name,i10.name workerType1Name,i11.name workerType2Name,i12.name workerType3Name,
+		i13.name workerType4Name,i14.name atSchoolName,i15.name usePersonTypeName,i16.name signContractName,i17.name isQrzName,i18.name isTjpxName,
+		i19.name isTszsName,i20.name computerAbilityName,i21.name isMianName,i22.name isJoinBaseName,i23.name isTjName,i24.name isTownUpBoneName,
+		i25.name isHealthName,i26.name personStatusName,i27.name isDoubleTchName,i28.name isProfessCardName,i29.name workDateTimerName,
+		i30.name isPreTchName,i31.name isPreTrainName </sql>
+	
+	<resultMap id="teacher" type="Teacher">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="name" column="name" />
+		<result property="oldName" column="oldname" />
+		<result property="gender" column="gender" />
+		<result property="tchWorkNum" column="tchworknum" />
+		<result property="nationality" column="nationality" />
+		<result property="paperType" column="papertype" />
+		<result property="idCard" column="idcard" />
+		<result property="birthday" column="birthday" />
+		<result property="path" column="path" />
+		<result property="nativer" column="nativer" />
+		<result property="birthPlace" column="birthplace" />
+		<result property="nation" column="nation" />	
+		<result property="politicType" column="politictype" />
+		<result property="marry" column="marry" />
+		<result property="health" column="health" />
+		<result property="workDay" column="workday" />
+		<result property="joinSchoolDay" column="joinschoolday" />
+		<result property="workerFrom1" column="workerfrom1" />
+		<result property="workerFrom2" column="workerfrom2" />
+		<result property="workerType1" column="workertype1" />
+		<result property="workerType2" column="workertype2" />
+		<result property="workerType3" column="workertype3" />
+		<result property="workerType4" column="workertype4" />
+		<result property="atSchool" column="atschool" />
+		<result property="usePersonType" column="usepersontype" />
+		<result property="signContract" column="signcontract" />
+		<result property="isQrz" column="isqrz" />
+		<result property="isTjpx" column="istjpx" />
+		<result property="isTszs" column="istszs" />
+		<result property="computerAbility" column="computerability" />
+		<result property="isMian" column="ismian" />
+		<result property="isJoinBase" column="isjoinbase" />
+		<result property="joinBaseStart" column="joinbasestart" />
+		<result property="joinBaseEnd" column="joinbaseend" />
+		<result property="isTj" column="istj" />
+		<result property="isTownUpBone" column="istownupbone" />
+		<result property="isHealth" column="ishealth" />
+		<result property="personStatus" column="personstatus" />
+		<result property="isDoubleTch" column="isdoubletch" />
+		<result property="isProfessCard" column="isprofesscard" />
+		<result property="workDateTimer" column="workdatetimer" />
+		<result property="isPreTch" column="ispretch" />
+		<result property="isPreTrain" column="ispretrain" />
+		<result property="status" column="status" />
+		<result property="remark" column="remark" />
+		<result property="tno" column="tno" />
+		<result property="type" column="type" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="memo" column="memo" />
+		<result property="specStartDate" column="specStartDate" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="Teacher" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="name != null">name,</if>
+			<if test="oldName != null">oldname,</if>
+			<if test="gender != null">gender,</if>
+			<if test="tchWorkNum != null">tchworknum,</if>
+			<if test="nationality != null">nationality,</if>
+			<if test="paperType != null">papertype,</if>
+			<if test="idCard != null">idcard,</if>
+			<if test="birthday != null">birthday,</if>
+			<if test="path != null">path,</if>
+			<if test="nativer != null">nativer,</if>
+			<if test="birthPlace != null">birthplace,</if>
+			<if test="nation != null">nation,</if>
+			<if test="politicType != null">politictype,</if>
+			<if test="marry != null">marry,</if>
+			<if test="health != null">health,</if>
+			<if test="workDay != null">workday,</if>
+			<if test="joinSchoolDay != null">joinschoolday,</if>
+			<if test="workerFrom1 != null">workerfrom1,</if>
+			<if test="workerFrom2 != null">workerfrom2,</if>
+			<if test="workerType1 != null">workertype1,</if>
+			<if test="workerType2 != null">workertype2,</if>
+			<if test="workerType3 != null">workertype3,</if>
+			<if test="workerType4 != null">workertype4,</if>
+			<if test="atSchool != null">atschool,</if>
+			<if test="usePersonType != null">usepersontype,</if>
+			<if test="signContract != null">signcontract,</if>
+			<if test="isQrz != null">isqrz,</if>
+			<if test="isTjpx != null">istjpx,</if>
+			<if test="isTszs != null">istszs,</if>
+			<if test="computerAbility != null">computerability,</if>
+			<if test="isMian != null">ismian,</if>
+			<if test="isJoinBase != null">isjoinbase,</if>
+			<if test="joinBaseStart != null">joinbasestart,</if>
+			<if test="joinBaseEnd != null">joinbaseend,</if>
+			<if test="isTj != null">istj,</if>
+			<if test="isTownUpBone != null">istownupbone,</if>
+			<if test="isHealth != null">ishealth,</if>
+			<if test="personStatus != null">personstatus,</if>
+			<if test="isDoubleTch != null">isdoubletch,</if>
+			<if test="isProfessCard != null">isprofesscard,</if>
+			<if test="workDateTimer != null">workdatetimer,</if>
+			<if test="isPreTch != null">ispretch,</if>
+			<if test="isPreTrain != null">ispretrain,</if>
+			<if test="status != null">status,</if>
+			<if test="remark != null">remark,</if>
+			<if test="tno != null">tno,</if>
+			<if test="type != null">type,</if>
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="memo != null">memo,</if>
+			<if test="specStartDate != null">specStartDate</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="name != null">#{name},</if>
+			<if test="oldName != null">#{oldName},</if>
+			<if test="gender != null">#{gender},</if>
+			<if test="tchWorkNum != null">#{tchWorkNum},</if>
+			<if test="nationality != null">#{nationality},</if>
+			<if test="paperType != null">#{paperType},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="birthday != null">#{birthday},</if>
+			<if test="path != null">#{path},</if>
+			<if test="nativer != null">#{nativer},</if>
+			<if test="birthPlace != null">#{birthPlace},</if>
+			<if test="nation != null">#{nation},</if>
+			<if test="politicType != null">#{politicType},</if>
+			<if test="marry != null">#{marry},</if>
+			<if test="health != null">#{health},</if>
+			<if test="workDay != null">#{workDay},</if>
+			<if test="joinSchoolDay != null">#{joinSchoolDay},</if>
+			<if test="workerFrom1 != null">#{workerFrom1},</if>
+			<if test="workerFrom2 != null">#{workerFrom2},</if>
+			<if test="workerType1 != null">#{workerType1},</if>
+			<if test="workerType2 != null">#{workerType2},</if>
+			<if test="workerType3 != null">#{workerType3},</if>
+			<if test="workerType4 != null">#{workerType4},</if>
+			<if test="atSchool != null">#{atSchool},</if>
+			<if test="usePersonType != null">#{usePersonType},</if>
+			<if test="signContract != null">#{signContract},</if>
+			<if test="isQrz != null">#{isQrz},</if>
+			<if test="isTjpx != null">#{isTjpx},</if>
+			<if test="isTszs != null">#{isTszs},</if>
+			<if test="computerAbility != null">#{computerAbility},</if>
+			<if test="isMian != null">#{isMian},</if>
+			<if test="isJoinBase != null">#{isJoinBase},</if>
+			<if test="joinBaseStart != null">#{joinBaseStart},</if>
+			<if test="joinBaseEnd != null">#{joinBaseEnd},</if>
+			<if test="isTj != null">#{isTj},</if>
+			<if test="isTownUpBone != null">#{isTownUpBone},</if>
+			<if test="isHealth != null">#{isHealth},</if>
+			<if test="personStatus != null">#{personStatus},</if>
+			<if test="isDoubleTch != null">#{isDoubleTch},</if>
+			<if test="isProfessCard != null">#{isProfessCard},</if>
+			<if test="workDateTimer != null">#{workDateTimer},</if>
+			<if test="isPreTch != null">#{isPreTch},</if>
+			<if test="isPreTrain != null">#{isPreTrain},</if>
+			<if test="status != null">#{status},</if>
+			<if test="remark != null">#{remark},</if>
+			<if test="tno != null">#{tno},</if>
+			<if test="type != null">#{type},</if>
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="specStartDate != null">#{specStartDate}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.name},#{item.oldName},#{item.gender},#{item.tchWorkNum},#{item.nationality},#{item.paperType},#{item.idCard},#{item.birthday},#{item.path},#{item.nativer},#{item.birthPlace},#{item.nation},#{item.politicType},#{item.marry},#{item.health},#{item.workDay},#{item.joinSchoolDay},#{item.workerFrom1},#{item.workerFrom2},#{item.workerType1},#{item.workerType2},#{item.workerType3},#{item.workerType4},#{item.atSchool},#{item.usePersonType},#{item.signContract},#{item.isQrz},#{item.isTjpx},#{item.isTszs},#{item.computerAbility},#{item.isMian},#{item.isJoinBase},#{item.joinBaseStart},#{item.joinBaseEnd},#{item.isTj},#{item.isTownUpBone},#{item.isHealth},#{item.personStatus},#{item.isDoubleTch},#{item.isProfessCard},#{item.workDateTimer},#{item.isPreTch},#{item.isPreTrain},#{item.status},#{item.remark},#{item.tno},#{item.type},#{item.province},#{item.city},#{item.town},#{item.school},#{item.memo},#{item.specStartDate})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacher">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacher" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="Teacher">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			name = #{name},
+			oldname = #{oldName},
+			gender = #{gender},
+			tchworknum = #{tchWorkNum},
+			nationality = #{nationality},
+			papertype = #{paperType},
+			idcard = #{idCard},
+			birthday = #{birthday},
+			path = #{path},
+			nativer = #{nativer},
+			birthplace = #{birthPlace},
+			nation = #{nation},
+			
+			politictype = #{politicType},
+			marry = #{marry},
+			
+			health = #{health},
+			workday = #{workDay},
+			joinschoolday = #{joinSchoolDay},
+			workerfrom1 = #{workerFrom1},
+			workerfrom2 = #{workerFrom2},
+			workertype1 = #{workerType1},
+			workertype2 = #{workerType2},
+			workertype3 = #{workerType3},
+			workertype4 = #{workerType4},
+			atschool = #{atSchool},
+			usepersontype = #{usePersonType},
+			signcontract = #{signContract},
+			isqrz = #{isQrz},
+			istjpx = #{isTjpx},
+			istszs = #{isTszs},
+			computerability = #{computerAbility},
+			ismian = #{isMian},
+			isjoinbase = #{isJoinBase},
+			joinbasestart = #{joinBaseStart},
+			joinbaseend = #{joinBaseEnd},
+			istj = #{isTj},
+			istownupbone = #{isTownUpBone},
+			ishealth = #{isHealth},
+			personstatus = #{personStatus},
+			isdoubletch = #{isDoubleTch},
+			isprofesscard = #{isProfessCard},
+			workdatetimer = #{workDateTimer},
+			ispretch = #{isPreTch},
+			ispretrain = #{isPreTrain},
+			status = #{status},
+			remark = #{remark},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			
+			memo = #{memo},
+			specStartDate = #{specStartDate}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据shool批量修改教师的省市县 -->
+	<update id="updateBatchSchool" parameterType="Teacher">
+		update
+		<include refid="table" />
+		<set>
+			province = #{province},
+			city = #{city},
+			town = #{town}
+		</set>
+		<where>
+			school = #{school} 
+		</where>
+	</update>
+	
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供用于excel表格导出使用-->
+	<sql id="selectorExcelFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumnsExcel" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+	 	left join sys_dict_item i on o.nation=i.id
+	 	left join sys_dict_item i1 on o.personType=i1.id
+	 	left join sys_dict_item i2 on o.duty=i2.id
+	 	left join sys_dict_item i3 on o.title=i3.id
+	 	left join sys_dict_item i4 on o.qualify=i4.id
+	 	left join sys_dict_item i5 on o.boneType=i5.id
+	 	left join sys_dict_item i6 on o.jobLevel=i6.id
+	 	left join sys_dict_item i7 on o.politic=i7.id
+	 	left join sys_dict_item i8 on o.degree=i8.id
+	 	left join sys_dict_item i9 on o.jobStatus=i9.id
+	 	left join t_conf_stage i10 on o.stage=i10.id
+	 	left join t_conf_course i11 on o.course=i11.id
+	 	left join t_conf_grade i12 on o.grade=i12.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			and o.deleted = 0 
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="oldName != null and oldName !=''"> 
+				<if test="oldNameLike == false"> and o.oldname=#{oldName}</if>
+				<if test="oldNameLike == true"> and o.oldname like  CONCAT('%',#{oldName},'%')</if>
+			</if>
+			<if test="gender != null and gender !=''"> 
+				<if test="genderLike == false"> and o.gender=#{gender}</if>
+				<if test="genderLike == true"> and o.gender like  CONCAT('%',#{gender},'%')</if>
+			</if>
+			<if test="tchWorkNum != null and tchWorkNum !=''"> 
+				<if test="tchWorkNumLike == false"> and o.tchworknum=#{tchWorkNum}</if>
+				<if test="tchWorkNumLike == true"> and o.tchworknum like  CONCAT('%',#{tchWorkNum},'%')</if>
+			</if>
+			<if test="nationality != null and nationality !=''"> 
+				<if test="nationalityLike == false"> and o.nationality=#{nationality}</if>
+				<if test="nationalityLike == true"> and o.nationality like  CONCAT('%',#{nationality},'%')</if>
+			</if>
+			<if test="paperType != null and paperType !=''"> 
+				<if test="paperTypeLike == false"> and o.papertype=#{paperType}</if>
+				<if test="paperTypeLike == true"> and o.papertype like  CONCAT('%',#{paperType},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and o.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and o.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="birthday != null and birthday !=''"> 
+				<if test="birthdayLike == false"> and o.birthday=#{birthday}</if>
+				<if test="birthdayLike == true"> and o.birthday like  CONCAT('%',#{birthday},'%')</if>
+			</if>
+			<if test="path != null and path !=''"> 
+				<if test="pathLike == false"> and o.path=#{path}</if>
+				<if test="pathLike == true"> and o.path like  CONCAT('%',#{path},'%')</if>
+			</if>
+			<if test="nativer != null and nativer !=''"> 
+				<if test="nativerLike == false"> and o.nativer=#{nativer}</if>
+				<if test="nativerLike == true"> and o.nativer like  CONCAT('%',#{nativer},'%')</if>
+			</if>
+			<if test="birthPlace != null and birthPlace !=''"> 
+				<if test="birthPlaceLike == false"> and o.birthplace=#{birthPlace}</if>
+				<if test="birthPlaceLike == true"> and o.birthplace like  CONCAT('%',#{birthPlace},'%')</if>
+			</if>
+			<if test="nation != null and nation !=''"> 
+				<if test="nationLike == false"> and o.nation=#{nation}</if>
+				<if test="nationLike == true"> and o.nation like  CONCAT('%',#{nation},'%')</if>
+			</if>
+			<if test="politicType != null and politicType !=''"> 
+				<if test="politicTypeLike == false"> and o.politictype=#{politicType}</if>
+				<if test="politicTypeLike == true"> and o.politictype like  CONCAT('%',#{politicType},'%')</if>
+			</if>
+			<if test="marry != null and marry !=''"> 
+				<if test="marryLike == false"> and o.marry=#{marry}</if>
+				<if test="marryLike == true"> and o.marry like  CONCAT('%',#{marry},'%')</if>
+			</if>
+		
+			<if test="health != null and health !=''"> 
+				<if test="healthLike == false"> and o.health=#{health}</if>
+				<if test="healthLike == true"> and o.health like  CONCAT('%',#{health},'%')</if>
+			</if>
+			<if test="workDay != null and workDay !=''"> 
+				<if test="workDayLike == false"> and o.workday=#{workDay}</if>
+				<if test="workDayLike == true"> and o.workday like  CONCAT('%',#{workDay},'%')</if>
+			</if>
+			<if test="joinSchoolDay != null and joinSchoolDay !=''"> 
+				<if test="joinSchoolDayLike == false"> and o.joinschoolday=#{joinSchoolDay}</if>
+				<if test="joinSchoolDayLike == true"> and o.joinschoolday like  CONCAT('%',#{joinSchoolDay},'%')</if>
+			</if>
+			<if test="workerFrom1 != null and workerFrom1 !=''"> 
+				<if test="workerFrom1Like == false"> and o.workerfrom1=#{workerFrom1}</if>
+				<if test="workerFrom1Like == true"> and o.workerfrom1 like  CONCAT('%',#{workerFrom1},'%')</if>
+			</if>
+			<if test="workerFrom2 != null and workerFrom2 !=''"> 
+				<if test="workerFrom2Like == false"> and o.workerfrom2=#{workerFrom2}</if>
+				<if test="workerFrom2Like == true"> and o.workerfrom2 like  CONCAT('%',#{workerFrom2},'%')</if>
+			</if>
+			<if test="workerType1 != null and workerType1 !=''"> 
+				<if test="workerType1Like == false"> and o.workertype1=#{workerType1}</if>
+				<if test="workerType1Like == true"> and o.workertype1 like  CONCAT('%',#{workerType1},'%')</if>
+			</if>
+			<if test="workerType2 != null and workerType2 !=''"> 
+				<if test="workerType2Like == false"> and o.workertype2=#{workerType2}</if>
+				<if test="workerType2Like == true"> and o.workertype2 like  CONCAT('%',#{workerType2},'%')</if>
+			</if>
+			<if test="workerType3 != null and workerType3 !=''"> 
+				<if test="workerType3Like == false"> and o.workertype3=#{workerType3}</if>
+				<if test="workerType3Like == true"> and o.workertype3 like  CONCAT('%',#{workerType3},'%')</if>
+			</if>
+			<if test="workerType4 != null and workerType4 !=''"> 
+				<if test="workerType4Like == false"> and o.workertype4=#{workerType4}</if>
+				<if test="workerType4Like == true"> and o.workertype4 like  CONCAT('%',#{workerType4},'%')</if>
+			</if>
+			<if test="atSchool != null and atSchool !=''"> 
+				<if test="atSchoolLike == false"> and o.atschool=#{atSchool}</if>
+				<if test="atSchoolLike == true"> and o.atschool like  CONCAT('%',#{atSchool},'%')</if>
+			</if>
+			<if test="usePersonType != null and usePersonType !=''"> 
+				<if test="usePersonTypeLike == false"> and o.usepersontype=#{usePersonType}</if>
+				<if test="usePersonTypeLike == true"> and o.usepersontype like  CONCAT('%',#{usePersonType},'%')</if>
+			</if>
+			<if test="signContract != null and signContract !=''"> 
+				<if test="signContractLike == false"> and o.signcontract=#{signContract}</if>
+				<if test="signContractLike == true"> and o.signcontract like  CONCAT('%',#{signContract},'%')</if>
+			</if>
+			<if test="isQrz != null and isQrz !=''"> 
+				<if test="isQrzLike == false"> and o.isqrz=#{isQrz}</if>
+				<if test="isQrzLike == true"> and o.isqrz like  CONCAT('%',#{isQrz},'%')</if>
+			</if>
+			<if test="isTjpx != null and isTjpx !=''"> 
+				<if test="isTjpxLike == false"> and o.istjpx=#{isTjpx}</if>
+				<if test="isTjpxLike == true"> and o.istjpx like  CONCAT('%',#{isTjpx},'%')</if>
+			</if>
+			<if test="isTszs != null and isTszs !=''"> 
+				<if test="isTszsLike == false"> and o.istszs=#{isTszs}</if>
+				<if test="isTszsLike == true"> and o.istszs like  CONCAT('%',#{isTszs},'%')</if>
+			</if>
+			<if test="computerAbility != null and computerAbility !=''"> 
+				<if test="computerAbilityLike == false"> and o.computerability=#{computerAbility}</if>
+				<if test="computerAbilityLike == true"> and o.computerability like  CONCAT('%',#{computerAbility},'%')</if>
+			</if>
+			<if test="isMian != null and isMian !=''"> 
+				<if test="isMianLike == false"> and o.ismian=#{isMian}</if>
+				<if test="isMianLike == true"> and o.ismian like  CONCAT('%',#{isMian},'%')</if>
+			</if>
+			<if test="isJoinBase != null and isJoinBase !=''"> 
+				<if test="isJoinBaseLike == false"> and o.isjoinbase=#{isJoinBase}</if>
+				<if test="isJoinBaseLike == true"> and o.isjoinbase like  CONCAT('%',#{isJoinBase},'%')</if>
+			</if>
+			<if test="joinBaseStart != null and joinBaseStart !=''"> 
+				<if test="joinBaseStartLike == false"> and o.joinbasestart=#{joinBaseStart}</if>
+				<if test="joinBaseStartLike == true"> and o.joinbasestart like  CONCAT('%',#{joinBaseStart},'%')</if>
+			</if>
+			<if test="joinBaseEnd != null and joinBaseEnd !=''"> 
+				<if test="joinBaseEndLike == false"> and o.joinbaseend=#{joinBaseEnd}</if>
+				<if test="joinBaseEndLike == true"> and o.joinbaseend like  CONCAT('%',#{joinBaseEnd},'%')</if>
+			</if>
+			<if test="isTj != null and isTj !=''"> 
+				<if test="isTjLike == false"> and o.istj=#{isTj}</if>
+				<if test="isTjLike == true"> and o.istj like  CONCAT('%',#{isTj},'%')</if>
+			</if>
+			<if test="isTownUpBone != null and isTownUpBone !=''"> 
+				<if test="isTownUpBoneLike == false"> and o.istownupbone=#{isTownUpBone}</if>
+				<if test="isTownUpBoneLike == true"> and o.istownupbone like  CONCAT('%',#{isTownUpBone},'%')</if>
+			</if>
+			<if test="isHealth != null and isHealth !=''"> 
+				<if test="isHealthLike == false"> and o.ishealth=#{isHealth}</if>
+				<if test="isHealthLike == true"> and o.ishealth like  CONCAT('%',#{isHealth},'%')</if>
+			</if>
+			<if test="personStatus != null and personStatus !=''"> 
+				<if test="personStatusLike == false"> and o.personstatus=#{personStatus}</if>
+				<if test="personStatusLike == true"> and o.personstatus like  CONCAT('%',#{personStatus},'%')</if>
+			</if>
+			<if test="isDoubleTch != null and isDoubleTch !=''"> 
+				<if test="isDoubleTchLike == false"> and o.isdoubletch=#{isDoubleTch}</if>
+				<if test="isDoubleTchLike == true"> and o.isdoubletch like  CONCAT('%',#{isDoubleTch},'%')</if>
+			</if>
+			<if test="isProfessCard != null and isProfessCard !=''"> 
+				<if test="isProfessCardLike == false"> and o.isprofesscard=#{isProfessCard}</if>
+				<if test="isProfessCardLike == true"> and o.isprofesscard like  CONCAT('%',#{isProfessCard},'%')</if>
+			</if>
+			<if test="workDateTimer != null and workDateTimer !=''"> 
+				<if test="workDateTimerLike == false"> and o.workdatetimer=#{workDateTimer}</if>
+				<if test="workDateTimerLike == true"> and o.workdatetimer like  CONCAT('%',#{workDateTimer},'%')</if>
+			</if>
+			<if test="isPreTch != null and isPreTch !=''"> 
+				<if test="isPreTchLike == false"> and o.ispretch=#{isPreTch}</if>
+				<if test="isPreTchLike == true"> and o.ispretch like  CONCAT('%',#{isPreTch},'%')</if>
+			</if>
+			<if test="isPreTrain != null and isPreTrain !=''"> 
+				<if test="isPreTrainLike == false"> and o.ispretrain=#{isPreTrain}</if>
+				<if test="isPreTrainLike == true"> and o.ispretrain like  CONCAT('%',#{isPreTrain},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				<if test="statusLike == false"> and o.status=#{status}</if>
+				<if test="statusLike == true"> and o.status like  CONCAT('%',#{status},'%')</if>
+			</if>
+			<if test="remark != null and remark !=''"> 
+				<if test="remarkLike == false"> and o.remark=#{remark}</if>
+				<if test="remarkLike == true"> and o.remark like  CONCAT('%',#{remark},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''"> 
+				<if test="tnoLike == false"> and o.tno=#{tno}</if>
+				<if test="tnoLike == true"> and o.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> and o.type=#{type}</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and o.memo=#{memo}</if>
+				<if test="memoLike == true"> and o.memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="startBirthday != null"> and o.birthday <![CDATA[   >=  ]]>#{startBirthday} </if>
+			<if test="endBirthday != null"> and  o.birthday <![CDATA[   <  ]]> #{endBirthday}</if>
+			<!--<if test="headTeacher != null and headTeacher !=''"> and o.headteacher like  CONCAT('%',#{headTeacher},'%')</if>
+			<if test="startJoinCadresDay != null"> and o.joincadresday <![CDATA[   >=  ]]>#{startJoinCadresDay} </if>
+			<if test="endJoinCadresDay != null"> and  o.joincadresday <![CDATA[   <  ]]> #{endJoinCadresDay}</if>
+			
+			<if test="startWorkedDay != null"> and o.workedday <![CDATA[   >=  ]]>#{startWorkedDay} </if>
+			<if test="endWorkedDay != null"> and  o.workedday <![CDATA[   <  ]]> #{endWorkedDay}</if>
+			<if test="startTeachedDay != null"> and o.teachedday <![CDATA[   >=  ]]>#{startTeachedDay} </if>
+			<if test="endTeachedDay != null"> and  o.teachedday <![CDATA[   <  ]]> #{endTeachedDay}</if> -->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherQuery" resultMap="teacher">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherQuery" resultMap="teacher">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT id,name,birthday,province,city,town,tno,school,gender from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+		LEFT JOIN t_school s ON o.school = s.id
+		LEFT JOIN sys_area_province p ON o.province = p.provinceno
+		LEFT JOIN sys_area_city c ON o.city = c.cityno
+		LEFT JOIN sys_area_town t ON o.town = t.townno
+		LEFT JOIN sys_dict_item i ON o.gender = i.id
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherQuery" resultType="long">
+		select count(1) from <include refid="table" /> o 
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取school编号序列-->
+	<select id="nextSequenceVal" resultType="long">
+		SELECT  FUN_SEQ('TEACHER_NO_SEQ')
+	</select>
+	
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验身份证是否存在-->
+	<select id="selectCheckIdCardExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="idCard != null and  idCard !=''"> and idcard=#{idCard}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+
+	<!--导出execl表格记录查询-->
+	<select id="selectExcelList" parameterType="TeacherQuery" resultMap="teacher">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumnsView" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+		left JOIN t_school s ON o.school=s.id
+		left join sys_area_province p on o.province=p.provinceno
+		left join sys_area_city c on o.city=c.cityno
+		left join sys_area_town t on o.town=t.townno 	
+		left join sys_dict_item i1 on o.gender=i1.id                  
+		left join sys_dict_item i2 on o.nationality=i2.id
+		left join sys_dict_item i3 on o.paperType=i3.id
+		left join sys_dict_item i4 on o.nation=i4.id
+		left join sys_dict_item i5 on o.politicType=i5.id
+		left join sys_dict_item i6 on o.marry=i6.id
+		left join sys_dict_item i7 on o.health=i7.id
+		left join sys_dict_item i8 on o.workerFrom1=i8.id
+		left join sys_dict_item i9 on o.workerFrom2=i9.id
+		left join sys_dict_item i10 on o.workerType1=i10.id
+		left join sys_dict_item i11 on o.workerType2=i11.id
+		left join sys_dict_item i12 on o.workerType3=i12.id
+		left join sys_dict_item i13 on o.workerType4=i13.id
+		left join sys_dict_item i14 on o.atSchool=i14.id
+		left join sys_dict_item i15 on o.usePersonType=i15.id
+		left join sys_dict_item i16 on o.signContract=i16.id
+		left join sys_dict_item i17 on o.isQrz=i17.id
+		left join sys_dict_item i18 on o.isTjpx=i18.id
+		left join sys_dict_item i19 on o.isTszs=i19.id
+		left join sys_dict_item i20 on o.computerAbility=i20.id
+		left join sys_dict_item i21 on o.isMian=i21.id
+		left join sys_dict_item i22 on o.isJoinBase=i22.id
+		left join sys_dict_item i23 on o.isTj=i23.id
+		left join sys_dict_item i24 on o.isTownUpBone=i24.id
+		left join sys_dict_item i25 on o.isHealth=i25.id
+		left join sys_dict_item i26 on o.personStatus=i26.id
+		left join sys_dict_item i27 on o.isDoubleTch=i27.id
+		left join sys_dict_item i28 on o.isProfessCard=i28.id
+		left join sys_dict_item i29 on o.workDateTimer=i29.id
+		left join sys_dict_item i30 on o.isPreTch=i30.id
+		left join sys_dict_item i31 on o.isPreTrain=i31.id
+	</select>
+	
+	<!-- 教师详细信息查询 -->
+	<select id="selectViewInfo" parameterType="long" resultMap="teacher">
+		select
+			<include refid="listcolumnsView" />
+		from  (
+			select * from t_teacher t where id = #{id}
+		) o
+		left JOIN t_school s ON o.school=s.id
+		left join sys_area_province p on o.province=p.provinceno
+		left join sys_area_city c on o.city=c.cityno
+		left join sys_area_town t on o.town=t.townno 	
+		left join sys_dict_item i1 on o.gender=i1.id                  
+		left join sys_dict_item i2 on o.nationality=i2.id
+		left join sys_dict_item i3 on o.paperType=i3.id
+		left join sys_dict_item i4 on o.nation=i4.id
+		left join sys_dict_item i5 on o.politicType=i5.id
+		left join sys_dict_item i6 on o.marry=i6.id
+		left join sys_dict_item i7 on o.health=i7.id
+		left join sys_dict_item i8 on o.workerFrom1=i8.id
+		left join sys_dict_item i9 on o.workerFrom2=i9.id
+		left join sys_dict_item i10 on o.workerType1=i10.id
+		left join sys_dict_item i11 on o.workerType2=i11.id
+		left join sys_dict_item i12 on o.workerType3=i12.id
+		left join sys_dict_item i13 on o.workerType4=i13.id
+		left join sys_dict_item i14 on o.atSchool=i14.id
+		left join sys_dict_item i15 on o.usePersonType=i15.id
+		left join sys_dict_item i16 on o.signContract=i16.id
+		left join sys_dict_item i17 on o.isQrz=i17.id
+		left join sys_dict_item i18 on o.isTjpx=i18.id
+		left join sys_dict_item i19 on o.isTszs=i19.id
+		left join sys_dict_item i20 on o.computerAbility=i20.id
+		left join sys_dict_item i21 on o.isMian=i21.id
+		left join sys_dict_item i22 on o.isJoinBase=i22.id
+		left join sys_dict_item i23 on o.isTj=i23.id
+		left join sys_dict_item i24 on o.isTownUpBone=i24.id
+		left join sys_dict_item i25 on o.isHealth=i25.id
+		left join sys_dict_item i26 on o.personStatus=i26.id
+		left join sys_dict_item i27 on o.isDoubleTch=i27.id
+		left join sys_dict_item i28 on o.isProfessCard=i28.id
+		left join sys_dict_item i29 on o.workDateTimer=i29.id
+		left join sys_dict_item i30 on o.isPreTch=i30.id
+		left join sys_dict_item i31 on o.isPreTrain=i31.id
+	</select>
+	
+	<update id="removeByIds" parameterType="java.util.List">
+		update
+		<include refid="table" />
+		<set>
+			deleted = 1 
+		</set>
+		where 
+		id in 
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</update>
+	
+	<update id="removeById" parameterType="long">
+		update
+		<include refid="table" />
+		<set>
+			deleted = 1 
+		</set>
+		where 
+		id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.system.dao.CityDao">
+	
+	<sql id="table"> sys_area_city </sql>
+	<sql id="columns"> id,version,createtime,deleted,provinceno,cityno,cityname,seq </sql>
+	
+	<resultMap id="city" type="City">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="provinceNo" column="provinceno" />
+		<result property="cityNo" column="cityno" />
+		<result property="cityName" column="cityname" />
+		<result property="seq" column="seq" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="City" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="provinceNo != null">provinceno,</if>
+			<if test="cityNo != null">cityno,</if>
+			<if test="cityName != null">cityname,</if>
+			<if test="seq != null">seq</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="provinceNo != null">#{provinceNo},</if>
+			<if test="cityNo != null">#{cityNo},</if>
+			<if test="cityName != null">#{cityName},</if>
+			<if test="seq != null">#{seq}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.provinceNo},#{item.cityNo},#{item.cityName},#{item.seq})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="city">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="city" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="City">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			provinceno = #{provinceNo},
+			cityno = #{cityNo},
+			cityname = #{cityName},
+			seq = #{seq}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="provinceNo != null and provinceNo !=''"> 
+				<if test="provinceNoLike == false"> and provinceno=#{provinceNo}</if>
+				<if test="provinceNoLike == true"> and provinceno like  CONCAT('%',#{provinceNo},'%')</if>
+			</if>
+			<if test="cityNo != null and cityNo !=''"> 
+				<if test="cityNoLike == false"> and cityno=#{cityNo}</if>
+				<if test="cityNoLike == true"> and cityno like  CONCAT('%',#{cityNo},'%')</if>
+			</if>
+			<if test="cityName != null and cityName !=''"> 
+				<if test="cityNameLike == false"> and cityname=#{cityName}</if>
+				<if test="cityNameLike == true"> and cityname like  CONCAT('%',#{cityName},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and seq=#{seq}</if>
+				<if test="seqLike == true"> and seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="CityQuery" resultMap="city">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="CityQuery" resultMap="city">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="CityQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<select id="selectNameByNo" resultType="string">
+		select cityname from <include refid="table" /> where  cityno=#{cityNo}
+	</select>
+</mapper>

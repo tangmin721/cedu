@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherAwardDao">
+	
+	<sql id="table"> t_tch_award </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,name,takedate,dept,memo,seq </sql>
+	
+	<resultMap id="teacherAward" type="TeacherAward">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="name" column="name" />
+		<result property="takeDate" column="takedate" />
+		<result property="dept" column="dept" />
+		<result property="memo" column="memo" />
+		<result property="seq" column="seq" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherAward" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="name != null">name,</if>
+			<if test="takeDate != null">takedate,</if>
+			<if test="dept != null">dept,</if>
+			<if test="memo != null">memo,</if>
+			<if test="seq != null">seq</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="name != null">#{name},</if>
+			<if test="takeDate != null">#{takeDate},</if>
+			<if test="dept != null">#{dept},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="seq != null">#{seq}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.name},#{item.takeDate},#{item.dept},#{item.memo},#{item.seq})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherAward">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherAward" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherAward">
+		update
+		<include refid="table" />
+		<set>
+			deleted = #{deleted},
+			tid = #{tid},
+			name = #{name},
+			takedate = #{takeDate},
+			dept = #{dept},
+			memo = #{memo},
+			seq = #{seq}
+		</set>
+		<where>
+			id = #{id} 
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and tid=#{tid}</if>
+				<if test="tidLike == true"> and tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and name=#{name}</if>
+				<if test="nameLike == true"> and name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="takeDate != null and takeDate !=''"> 
+				<if test="takeDateLike == false"> and takedate=#{takeDate}</if>
+				<if test="takeDateLike == true"> and takedate like  CONCAT('%',#{takeDate},'%')</if>
+			</if>
+			<if test="dept != null and dept !=''"> 
+				<if test="deptLike == false"> and dept=#{dept}</if>
+				<if test="deptLike == true"> and dept like  CONCAT('%',#{dept},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and memo=#{memo}</if>
+				<if test="memoLike == true"> and memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and seq=#{seq}</if>
+				<if test="seqLike == true"> and seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherAwardQuery" resultMap="teacherAward">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TeacherAwardQuery" resultMap="teacherAward">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherAwardQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--根据tid批量删除-->
+	<delete id="deleteByTid" parameterType="long">
+		delete from <include refid="table" /> where tid = #{tid}
+	</delete>
+</mapper>

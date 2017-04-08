@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectReportConfigDao">
+	
+	<sql id="table"> t_project_report_conf </sql>
+	<sql id="columns"> id,version,createtime,deleted,pid,traincount,registertype,startdate,enddate,memo </sql>
+	
+	<resultMap id="projectReportConfig" type="ProjectReportConfig">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="pid" column="pid" />
+		<result property="trainCount" column="traincount" />
+		<result property="registerType" column="registertype" />
+		<result property="startDate" column="startdate" />
+		<result property="endDate" column="enddate" />
+		<result property="memo" column="memo" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectReportConfig" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="pid != null">pid,</if>
+			<if test="trainCount != null">traincount,</if>
+			<if test="registerType != null">registertype,</if>
+			<if test="startDate != null">startdate,</if>
+			<if test="endDate != null">enddate,</if>
+			<if test="memo != null">memo</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="pid != null">#{pid},</if>
+			<if test="trainCount != null">#{trainCount},</if>
+			<if test="registerType != null">#{registerType},</if>
+			<if test="startDate != null">#{startDate},</if>
+			<if test="endDate != null">#{endDate},</if>
+			<if test="memo != null">#{memo}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.pid},#{item.trainCount},#{item.registerType},#{item.startDate},#{item.endDate},#{item.memo})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectReportConfig">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据Pid查询 -->
+	<select id="selectByPid" parameterType="long" resultMap="projectReportConfig">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		pid=#{pid}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectReportConfig" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectReportConfig">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			pid = #{pid},
+			traincount = #{trainCount},
+			registertype = #{registerType},
+			startdate = #{startDate},
+			enddate = #{endDate},
+			memo = #{memo}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="pid != null and pid !=''"> 
+				<if test="pidLike == false"> and pid=#{pid}</if>
+				<if test="pidLike == true"> and pid like  CONCAT('%',#{pid},'%')</if>
+			</if>
+			<if test="trainCount != null and trainCount !=''"> 
+				<if test="trainCountLike == false"> and traincount=#{trainCount}</if>
+				<if test="trainCountLike == true"> and traincount like  CONCAT('%',#{trainCount},'%')</if>
+			</if>
+			<if test="registerType != null and registerType !=''"> 
+				<if test="registerTypeLike == false"> and registertype=#{registerType}</if>
+				<if test="registerTypeLike == true"> and registertype like  CONCAT('%',#{registerType},'%')</if>
+			</if>
+			<if test="startDate != null and startDate !=''"> 
+				<if test="startDateLike == false"> and startdate=#{startDate}</if>
+				<if test="startDateLike == true"> and startdate like  CONCAT('%',#{startDate},'%')</if>
+			</if>
+			<if test="endDate != null and endDate !=''"> 
+				<if test="endDateLike == false"> and enddate=#{endDate}</if>
+				<if test="endDateLike == true"> and enddate like  CONCAT('%',#{endDate},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and memo=#{memo}</if>
+				<if test="memoLike == true"> and memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectReportConfigQuery" resultMap="projectReportConfig">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectReportConfigQuery" resultMap="projectReportConfig">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectReportConfigQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--根据pid获取配置的培训总人数-->
+	<select id="countPidNum" resultType="int">
+		select traincount from <include refid="table" /> where pid=#{pid}
+	</select>
+	
+</mapper>

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.SchoolDao">
+	
+	<sql id="table"> t_school </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,name,schoolno,category,type,schooltype,address,postcode,master,tel,director,idcard,thetel,phone,email,status </sql>
+	
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> s.*,p.provincename,c.cityname,t.townname,i.name as categoryname,ii.name as typename </sql>
+	
+	<resultMap id="school" type="School">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="province" column="province" />
+		<result property="provinceName" column="provincename" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityname" />
+		<result property="town" column="town" />
+		<result property="townName" column="townname" />
+		<result property="name" column="name" />
+		<result property="schoolNo" column="schoolno" />
+		<result property="category" column="category" />
+		<result property="categoryName" column="categoryname" />
+		<result property="type" column="type" />
+		<result property="typeName" column="typename" />
+		<result property="schoolType" column="schooltype" />
+		<result property="address" column="address" />
+		<result property="postCode" column="postcode" />
+		<result property="master" column="master" />
+		<result property="tel" column="tel" />
+		<result property="director" column="director" />
+		<result property="idCard" column="idcard" />
+		<result property="theTel" column="thetel" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="School" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="name != null">name,</if>
+			<if test="schoolNo != null">schoolno,</if>
+			<if test="category != null">category,</if>
+			<if test="type != null">type,</if>
+			<if test="schoolType != null">schooltype,</if>
+			<if test="address != null">address,</if>
+			<if test="postCode != null">postcode,</if>
+			<if test="master != null">master,</if>
+			<if test="tel != null">tel,</if>
+			<if test="director != null">director,</if>
+			<if test="idCard != null">idcard,</if>
+			<if test="theTel != null">thetel,</if>
+			<if test="phone != null">phone,</if>
+			<if test="email != null">email,</if>
+			<if test="status != null">status</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="name != null">#{name},</if>
+			<if test="schoolNo != null">#{schoolNo},</if>
+			<if test="category != null">#{category},</if>
+			<if test="type != null">#{type},</if>
+			<if test="schoolType != null">#{schoolType},</if>
+			<if test="address != null">#{address},</if>
+			<if test="postCode != null">#{postCode},</if>
+			<if test="master != null">#{master},</if>
+			<if test="tel != null">#{tel},</if>
+			<if test="director != null">#{director},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="theTel != null">#{theTel},</if>
+			<if test="phone != null">#{phone},</if>
+			<if test="email != null">#{email},</if>
+			<if test="status != null">#{status}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.province},#{item.city},#{item.town},#{item.name},#{item.schoolNo},#{item.category},#{item.type},#{item.schoolType},#{item.address},#{item.postCode},#{item.master},#{item.tel},#{item.director},#{item.idCard},#{item.theTel},#{item.phone},#{item.email},#{item.status})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="school">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="school" >
+		<include refid="selectorFieldsForPage" />
+		where s.id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="School">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			name = #{name},
+			category = #{category},
+			type = #{type},
+			schooltype = #{schoolType},
+			address = #{address},
+			postcode = #{postCode},
+			master = #{master},
+			tel = #{tel},
+			director = #{director},
+			idcard = #{idCard},
+			thetel = #{theTel},
+			phone = #{phone},
+			email = #{email},
+			status = #{status}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> s
+	</sql>
+	
+	
+	<!--片段list字段查询器 ，仅供用于查询列表显示省市县名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> s
+		left join sys_area_province p on s.province=p.provinceno
+		left join sys_area_city c on s.city=c.cityno
+		left join sys_area_town t on s.town=t.townno
+		LEFT JOIN sys_dict_item i ON s.category=i.id 
+		LEFT JOIN sys_dict_item ii on s.type=ii.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and s.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0"> and s.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and s.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and s.town=#{town}</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and s.name=#{name}</if>
+				<if test="nameLike == true"> and s.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="schoolNo != null and schoolNo !=''"> 
+				<if test="schoolNoLike == false"> and s.schoolno=#{schoolNo}</if>
+				<if test="schoolNoLike == true"> and s.schoolno like  CONCAT('%',#{schoolNo},'%')</if>
+			</if>
+			<if test="category != null and category !=''"> and s.category=#{category}</if>
+			<if test="type != null and type !=''">  and s.type=#{type} </if>
+			<if test="schoolType != null and schoolType !=''">  and s.schoolType=#{schoolType} </if>
+			<if test="address != null and address !=''"> 
+				<if test="addressLike == false"> and s.address=#{address}</if>
+				<if test="addressLike == true"> and s.address like  CONCAT('%',#{address},'%')</if>
+			</if>
+			<if test="postCode != null and postCode !=''"> 
+				<if test="postCodeLike == false"> and s.postcode=#{postCode}</if>
+				<if test="postCodeLike == true"> and s.postcode like  CONCAT('%',#{postCode},'%')</if>
+			</if>
+			<if test="master != null and master !=''"> 
+				<if test="masterLike == false"> and s.master=#{master}</if>
+				<if test="masterLike == true"> and s.master like  CONCAT('%',#{master},'%')</if>
+			</if>
+			<if test="tel != null and tel !=''"> 
+				<if test="telLike == false"> and s.tel=#{tel}</if>
+				<if test="telLike == true"> and s.tel like  CONCAT('%',#{tel},'%')</if>
+			</if>
+			<if test="director != null and director !=''"> 
+				<if test="directorLike == false"> and s.director=#{director}</if>
+				<if test="directorLike == true"> and s.director like  CONCAT('%',#{director},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and s.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and s.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="theTel != null and theTel !=''"> 
+				<if test="theTelLike == false"> and s.thetel=#{theTel}</if>
+				<if test="theTelLike == true"> and s.thetel like  CONCAT('%',#{theTel},'%')</if>
+			</if>
+			<if test="phone != null and phone !=''"> 
+				<if test="phoneLike == false"> and s.phone=#{phone}</if>
+				<if test="phoneLike == true"> and s.phone like  CONCAT('%',#{phone},'%')</if>
+			</if>
+			<if test="email != null and email !=''"> 
+				<if test="emailLike == false"> and s.email=#{email}</if>
+				<if test="emailLike == true"> and s.email like  CONCAT('%',#{email},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> and s.status=#{status} </if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				s.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="SchoolQuery" resultMap="school">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="SchoolQuery" resultMap="school">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="SchoolQuery" resultType="long">
+		select count(1) from <include refid="table" /> s
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取school编号序列-->
+	<select id="nextSequenceVal" resultType="long">
+		SELECT  FUN_SEQ('SCHOOL_NO_SEQ')
+	</select>
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="town != null and  town !=''"> and town=#{town}</if>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ExpertDao">
+	
+	<sql id="table"> t_expert </sql>
+	<sql id="columns"> id,version,createtime,deleted,name,idcard,dept,title,mobile,email,direction,time,goodrate,coursename </sql>
+	
+	<resultMap id="expert" type="Expert">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="name" column="name" />
+		<result property="idCard" column="idcard" />
+		<result property="dept" column="dept" />
+		<result property="title" column="title" />
+		<result property="mobile" column="mobile" />
+		<result property="email" column="email" />
+		<result property="direction" column="direction" />
+		<result property="time" column="time" />
+		<result property="goodRate" column="goodrate" />
+		<result property="courseName" column="coursename" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="Expert" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="name != null">name,</if>
+			<if test="idCard != null">idcard,</if>
+			<if test="dept != null">dept,</if>
+			<if test="title != null">title,</if>
+			<if test="mobile != null">mobile,</if>
+			<if test="email != null">email,</if>
+			<if test="direction != null">direction,</if>
+			<if test="time != null">time,</if>
+			<if test="goodRate != null">goodrate,</if>
+			<if test="courseName != null">coursename</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="name != null">#{name},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="dept != null">#{dept},</if>
+			<if test="title != null">#{title},</if>
+			<if test="mobile != null">#{mobile},</if>
+			<if test="email != null">#{email},</if>
+			<if test="direction != null">#{direction},</if>
+			<if test="time != null">#{time},</if>
+			<if test="goodRate != null">#{goodRate},</if>
+			<if test="courseName != null">#{courseName}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.name},#{item.idCard},#{item.dept},#{item.title},#{item.mobile},#{item.email},#{item.direction},#{item.time},#{item.goodRate},#{item.courseName})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="expert">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="expert" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="Expert">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			name = #{name},
+			idcard = #{idCard},
+			dept = #{dept},
+			title = #{title},
+			mobile = #{mobile},
+			email = #{email},
+			direction = #{direction},
+			time = #{time},
+			goodrate = #{goodRate},
+			coursename = #{courseName}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and name=#{name}</if>
+				<if test="nameLike == true"> and name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="dept != null and dept !=''"> 
+				<if test="deptLike == false"> and dept=#{dept}</if>
+				<if test="deptLike == true"> and dept like  CONCAT('%',#{dept},'%')</if>
+			</if>
+			<if test="title != null and title !=''"> 
+				<if test="titleLike == false"> and title=#{title}</if>
+				<if test="titleLike == true"> and title like  CONCAT('%',#{title},'%')</if>
+			</if>
+			<if test="mobile != null and mobile !=''"> 
+				<if test="mobileLike == false"> and mobile=#{mobile}</if>
+				<if test="mobileLike == true"> and mobile like  CONCAT('%',#{mobile},'%')</if>
+			</if>
+			<if test="email != null and email !=''"> 
+				<if test="emailLike == false"> and email=#{email}</if>
+				<if test="emailLike == true"> and email like  CONCAT('%',#{email},'%')</if>
+			</if>
+			<if test="direction != null and direction !=''"> 
+				<if test="directionLike == false"> and direction=#{direction}</if>
+				<if test="directionLike == true"> and direction like  CONCAT('%',#{direction},'%')</if>
+			</if>
+			<if test="time != null and time !=''"> 
+				<if test="timeLike == false"> and time=#{time}</if>
+				<if test="timeLike == true"> and time like  CONCAT('%',#{time},'%')</if>
+			</if>
+			<if test="goodRate != null and goodRate !=''"> 
+				<if test="goodRateLike == false"> and goodrate=#{goodRate}</if>
+				<if test="goodRateLike == true"> and goodrate like  CONCAT('%',#{goodRate},'%')</if>
+			</if>
+			<if test="courseName != null and courseName !=''"> 
+				<if test="courseNameLike == false"> and coursename=#{courseName}</if>
+				<if test="courseNameLike == true"> and coursename like  CONCAT('%',#{courseName},'%')</if>
+			</if>
+			<if test="startTime != null"> and time <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  time <![CDATA[   <  ]]> #{endTime}</if>
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ExpertQuery" resultMap="expert">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ExpertQuery" resultMap="expert">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ExpertQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherScoreDao">
+	
+	<sql id="table"> t_tch_score </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,pid,score,hour,memo,seq,status </sql>
+	
+	<sql id="listcolumns"> o.*,p.name as pname,p.pno as pno,i.name as ptype, iii.name as pschoolyear </sql>
+	
+	<resultMap id="teacherScore" type="TeacherScore">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="pid" column="pid" />
+		<result property="pname" column="pname" />
+		<result property="pno" column="pno" />
+		<result property="ptype" column="ptype" />
+		<result property="pschoolYear" column="pschoolyear" />
+		<result property="score" column="score" />
+		<result property="hour" column="hour" />
+		<result property="memo" column="memo" />
+		<result property="seq" column="seq" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherScore" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="pid != null">pid,</if>
+			<if test="score != null">score,</if>
+			<if test="hour != null">hour,</if>
+			<if test="memo != null">memo,</if>
+			<if test="seq != null">seq,</if>
+			<if test="status != null">status</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="pid != null">#{pid},</if>
+			<if test="score != null">#{score},</if>
+			<if test="hour != null">#{hour},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="status != null">#{status}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.pid},#{item.score},#{item.hour},#{item.memo},#{item.seq},#{item.status})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherScore">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherScore" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherScore">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			pid = #{pid},
+			score = #{score},
+			hour = #{hour},
+			memo = #{memo},
+			seq = #{seq},
+			status = #{status}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_project p on o.pid = p.id
+		LEFT JOIN sys_dict_item i on p.traintype = i.id
+		LEFT JOIN sys_dict_item iii on p.schoolYear = iii.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and tid=#{tid}</if>
+				<if test="tidLike == true"> and tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="pid != null and pid !=''"> 
+				<if test="pidLike == false"> and pid=#{pid}</if>
+				<if test="pidLike == true"> and pid like  CONCAT('%',#{pid},'%')</if>
+			</if>
+			<if test="score != null and score !=''"> 
+				<if test="scoreLike == false"> and score=#{score}</if>
+				<if test="scoreLike == true"> and score like  CONCAT('%',#{score},'%')</if>
+			</if>
+			<if test="hour != null and hour !=''"> 
+				<if test="hourLike == false"> and hour=#{hour}</if>
+				<if test="hourLike == true"> and hour like  CONCAT('%',#{hour},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and memo=#{memo}</if>
+				<if test="memoLike == true"> and memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and seq=#{seq}</if>
+				<if test="seqLike == true"> and seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				<if test="statusLike == false"> and status=#{status}</if>
+				<if test="statusLike == true"> and status like  CONCAT('%',#{status},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherScoreQuery" resultMap="teacherScore">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TeacherScoreQuery" resultMap="teacherScore">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherScoreQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

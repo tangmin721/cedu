@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherCredentDao">
+	
+	<sql id="table"> t_tch_credent </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,type,name,credentno,takedate,expdate,dept,memo,seq,languagetype,proficiencylevel,otherskillname,otherproficiencylevel,languagecredenttype </sql>
+	
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> o.*,i.name as typename </sql>
+	
+	<resultMap id="teacherCredent" type="TeacherCredent">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="type" column="type" />
+		<result property="typeName" column="typename" />
+		<result property="name" column="name" />
+		<result property="credentNo" column="credentno" />
+		<result property="takeDate" column="takedate" />
+		<result property="expDate" column="expdate" />
+		<result property="dept" column="dept" />
+		<result property="memo" column="memo" />
+		<result property="seq" column="seq" />
+		<result property="languageType" column="languagetype" />
+		<result property="proficiencyLevel" column="proficiencylevel" />
+		<result property="otherSkillName" column="otherskillname" />
+		<result property="otherProficiencyLevel" column="otherproficiencylevel" />
+		<result property="languageCredentType" column="languagecredenttype" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherCredent" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="type != null">type,</if>
+			<if test="name != null">name,</if>
+			<if test="credentNo != null">credentno,</if>
+			<if test="takeDate != null">takedate,</if>
+			<if test="expDate != null">expdate,</if>
+			<if test="dept != null">dept,</if>
+			<if test="memo != null">memo,</if>
+			<if test="seq != null">seq,</if>
+			<if test="languageType != null">languagetype,</if>
+			<if test="proficiencyLevel != null">proficiencylevel,</if>
+			<if test="otherSkillName != null">otherskillname,</if>
+			<if test="otherProficiencyLevel != null">otherproficiencylevel,</if>
+			<if test="languageCredentType != null">languagecredenttype</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="type != null">#{type},</if>
+			<if test="name != null">#{name},</if>
+			<if test="credentNo != null">#{credentNo},</if>
+			<if test="takeDate != null">#{takeDate},</if>
+			<if test="expDate != null">#{expDate},</if>
+			<if test="dept != null">#{dept},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="languageType != null">#{languageType},</if>
+			<if test="proficiencyLevel != null">#{proficiencyLevel},</if>
+			<if test="otherSkillName != null">#{otherSkillName},</if>
+			<if test="otherProficiencyLevel != null">#{otherProficiencyLevel},</if>
+			<if test="languageCredentType != null">#{languageCredentType}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.name},#{item.credentNo},#{item.takeDate},#{item.expDate},#{item.dept},#{item.memo},#{item.seq},#{item.languageType},#{item.proficiencyLevel},#{item.otherSkillName},#{item.otherProficiencyLevel},#{item.languageCredentType})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherCredent">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherCredent" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherCredent">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			type = #{type},
+			name = #{name},
+			credentno = #{credentNo},
+			takedate = #{takeDate},
+			expdate = #{expDate},
+			dept = #{dept},
+			memo = #{memo},
+			seq = #{seq},
+			languagetype = #{languageType},
+			proficiencylevel = #{proficiencyLevel},
+			otherskillname = #{otherSkillName},
+			otherproficiencylevel = #{otherProficiencyLevel},
+			languagecredenttype = #{languageCredentType}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		left join sys_dict_item i on o.type=i.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> and o.type=#{type}</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="credentNo != null and credentNo !=''"> 
+				<if test="credentNoLike == false"> and o.credentno=#{credentNo}</if>
+				<if test="credentNoLike == true"> and o.credentno like  CONCAT('%',#{credentNo},'%')</if>
+			</if>
+			<if test="takeDate != null and takeDate !=''"> 
+				<if test="takeDateLike == false"> and o.takedate=#{takeDate}</if>
+				<if test="takeDateLike == true"> and o.takedate like  CONCAT('%',#{takeDate},'%')</if>
+			</if>
+			<if test="expDate != null and expDate !=''"> 
+				<if test="expDateLike == false"> and o.expdate=#{expDate}</if>
+				<if test="expDateLike == true"> and o.expdate like  CONCAT('%',#{expDate},'%')</if>
+			</if>
+			<if test="dept != null and dept !=''"> 
+				<if test="deptLike == false"> and o.dept=#{dept}</if>
+				<if test="deptLike == true"> and o.dept like  CONCAT('%',#{dept},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and o.memo=#{memo}</if>
+				<if test="memoLike == true"> and o.memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and o.seq=#{seq}</if>
+				<if test="seqLike == true"> and o.seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherCredentQuery" resultMap="teacherCredent">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TeacherCredentQuery" resultMap="teacherCredent">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherCredentQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid=#{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 注册注册的消息监听 start -->
+	<bean id="registerMsgListener" class="com.yanxiu.ce.core.mq.consumer.RegisterMsgListener"></bean>
+	<bean id="registerMsgQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${mq.queueName.register}</value>
+		</constructor-arg>
+	</bean>
+	<bean id="registerMsgListenerContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="registerMsgQueue" />
+		<property name="messageListener" ref="registerMsgListener" />
+	</bean> 
+	<!-- 注册 end -->
+
+</beans>

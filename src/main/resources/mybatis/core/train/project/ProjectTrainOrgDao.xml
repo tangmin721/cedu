@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectTrainOrgDao">
+	
+	<sql id="table"> t_project_trainorg </sql>
+	<sql id="columns"> id,version,createtime,deleted,pid,orgid </sql>
+	
+	<sql id="listcolumns"> o.*,t.name,t.type,t.usertype,t.level,t.address,t.linkman,t.tel,i.name as typename,ii.name as levelname,t.orgno orgno </sql>
+	
+	<resultMap id="projectTrainOrg" type="ProjectTrainOrg">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="pid" column="pid" />
+		<result property="orgid" column="orgid" />
+		<result property="type" column="type" />
+		<result property="typeName" column="typename" />
+		<result property="userType" column="usertype" />
+		<result property="level" column="level" />
+		<result property="levelName" column="levelname" />
+		<result property="address" column="address" />
+		<result property="linkman" column="linkman" />
+		<result property="tel" column="tel" />
+		<result property="orgNo" column="orgno" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectTrainOrg" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="pid != null">pid,</if>
+			<if test="orgid != null">orgid</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="pid != null">#{pid},</if>
+			<if test="orgid != null">#{orgid}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.pid},#{item.orgid})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectTrainOrg">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectTrainOrg" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectTrainOrg">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			pid = #{pid},
+			orgid = #{orgid}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_train_org t ON o.orgid=t.id
+		LEFT JOIN sys_dict_item i ON t.type=i.id
+		LEFT JOIN sys_dict_item ii ON t.level=ii.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="pid != null and pid !=''"> 
+				and o.pid=#{pid}
+			</if>
+			<if test="orgid != null and orgid !=''"> 
+				and o.orgid=#{orgid}
+			</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and t.name=#{name}</if>
+				<if test="nameLike == true"> and t.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="userType != null and userType !=''">  and t.usertype=#{userType}</if>
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectTrainOrgQuery" resultMap="projectTrainOrg">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectTrainOrgQuery" resultMap="projectTrainOrg">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectTrainOrgQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		LEFT JOIN t_train_org t ON o.orgid=t.id
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验entity是否存在-->
+	<select id="selectCheckPidOrgidExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="pid != null and  pid !=''"> and pid=#{pid}</if>
+			<if test="orgid != null and  orgid !=''"> and orgid=#{orgid}</if>
+		</where>
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

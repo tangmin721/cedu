@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false">
+
+	<diskStore path="java.io.tmpdir/ce/service" />
+
+	<!-- DefaultCache setting. -->
+	<defaultCache 
+		maxEntriesLocalHeap="10000" 
+		eternal="false"
+		timeToIdleSeconds="300" 
+		timeToLiveSeconds="600" 
+		overflowToDisk="true"
+		maxEntriesLocalDisk="100000" 
+		memoryStoreEvictionPolicy="LFU"/>
+		
+	<!-- security entity-->
+	<cache name="menuCache" 
+		maxEntriesLocalHeap="1000" 
+		eternal="false" 
+		overflowToDisk="true" 
+		maxEntriesLocalDisk="10000" />	
+	<cache 
+		name="userRoleCache"
+		maxEntriesLocalHeap="1000" 
+		eternal="false" 
+		overflowToDisk="true"
+		maxEntriesLocalDisk="10000" />	
+		
+	<!--common-->
+	<cache 
+		name="com.yanxiu.ce.system.Province"
+		maxEntriesLocalHeap="1000" 
+		eternal="false" 
+		overflowToDisk="true"
+		maxEntriesLocalDisk="10000" />	
+	<cache 
+		name="com.yanxiu.ce.system.City"
+		maxEntriesLocalHeap="1000" 
+		eternal="false" 
+		overflowToDisk="true"
+		maxEntriesLocalDisk="10000" />
+	<cache 
+		name="com.yanxiu.ce.system.Town"
+		maxEntriesLocalHeap="1000" 
+		eternal="false" 
+		overflowToDisk="true"
+		maxEntriesLocalDisk="10000" />	
+		
+	<cache 
+		name="com.yanxiu.ce.system.entity.Dict"
+		maxEntriesLocalHeap="1000" 
+		eternal="false" 
+		overflowToDisk="true"
+		maxEntriesLocalDisk="10000" />	
+</ehcache>

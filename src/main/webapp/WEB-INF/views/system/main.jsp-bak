@@ -1,0 +1,63 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ include file="/WEB-INF/common/taglibs.jsp"%>
+
+<script type="text/javascript">
+
+</script>
+<div class="bjui-pageHeader" style="background:#FFF;">
+    <div style="padding: 0 15px;">
+        <h4 style="margin-bottom:20px;">
+            	继续教育管理系统　<small>中国教师研修网</small>
+            
+        </h4>
+        <div style="float:left; width:157px;">
+            <div class="alert alert-info" role="alert" style="margin:0 0 5px; padding:10px;">
+                <img src="${ctx }/static/images/liangshitong.png" width="135">
+            </div>
+        </div>
+        <div style="margin-left:170px; margin-top:22px; padding-left:6px;">
+            <span style="padding-left:30px;">中国教师研修网：</span><a href="http://www.teacherclub.com.cn/" target="_blank">http://www.teacherclub.com.cn/</a>
+             <span style="padding-left:30px;">研修网会员中心：</span><a href="http://www.yanxiu.com/" target="_blank">http://www.yanxiu.com/</a>
+              <span style="padding-left:30px;">三人行网络：</span><a href="http://www.3ren.cn/home" target="_blank">http://www.3ren.cn/home</a>
+        </div>
+        <div class="row" style="margin-left:170px; margin-top:10px;">
+            <div class="col-md-6" style="padding:5px;">
+                <div class="alert alert-success" role="alert" style="margin:0 0 5px; padding:5px 15px;">
+                    <strong>中国教师研修网欢迎你!</strong>
+                    <br><span class="label label-default">开发：</span> <a href="http://www.teacherclub.com.cn/" target="_blank">@唐敏</a> 
+                    <br><span class="label label-default">测试  推广：</span> <a href="http://www.teacherclub.com.cn/">@TEST</a>
+                    <br><span class="label label-default">测试  试用：</span> <a href="http://www.teacherclub.com.cn/">@TEST</a>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding:5px;">
+                <div class="alert alert-info" role="alert" style="margin:0 0 5px; padding:5px 15px;">
+                    <h5>项目地址：<a href="http://www.teacherclub.com.cn/" target="_blank">SVN</a></h5>
+                    <h5>MAVEN私有库地址：<a href="http://www.teacherclub.com.cn/" target="_blank">MAVEN</a></h5>
+                    <h5>MYSQL数据库地址：<a href="http://www.teacherclub.com.cn/" target="_blank">MYSQL</a></h5>
+                    <h5>测试访问地址：<a href="http://www.teacherclub.com.cn/" target="_blank">TEST.URL</a></h5>
+                </div>                                  
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bjui-pageContent">
+    <div style="margin-top:5px; overflow:hidden;">
+        <div class="row" style="padding: 0 8px;">
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h3 class="panel-title">当前版本：<code>V0.1</code>　最近更新日志(2016-03-04)：</h3></div>
+                    <div class="panel-body bjui-doc" style="height:515px">
+                    	模块开发记录：
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h3 class="panel-title">中国教师研修网</h3></div>
+                    <div class="panel-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

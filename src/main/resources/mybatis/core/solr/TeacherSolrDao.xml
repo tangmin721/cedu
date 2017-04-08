@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.solr.dao.TeacherSolrDao">
+	
+	<select id="getAllTeacherSolr" resultType="com.yanxiu.ce.core.solr.dto.TeacherSolr">
+		SELECT
+			o.id,
+			CONCAT(p.provincename,c.cityname,t.townname,s. NAME) as schoolname,
+			i. NAME AS nationname,
+			ii. NAME AS nativername,
+			o. NAME,
+			o.usedname,
+			CONCAT('教师编号：(',o.tno,')') as tno,
+			o.idcard,
+			date_format(o.birthday, '%Y.%m.%d') as birthday,
+			o.email,
+			o.tel,
+			o.mobile,
+			CASE 1
+		WHEN o.sex = 0 THEN
+			'女'
+		WHEN o.sex = 1 THEN
+			'男'
+		ELSE
+			'保密'
+		END AS sex
+		FROM
+			`t_teacher` o
+		LEFT JOIN t_school s ON o.school = s.id
+		LEFT JOIN sys_area_province p ON o.province = p.provinceno
+		LEFT JOIN sys_area_city c ON o.city = c.cityno
+		LEFT JOIN sys_area_town t ON o.town = t.townno
+		LEFT JOIN sys_dict_item i ON o.nativer = i.id
+		LEFT JOIN sys_dict_item ii ON o.nation = ii.id
+		
+		where o.deleted=0
+	</select>
+	
+</mapper>

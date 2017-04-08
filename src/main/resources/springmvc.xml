@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd">
+	
+	<!-- 用于controller注入value，因为spring是父容器，扫描service，springmvc是子容器，扫描controller -->
+	<context:property-placeholder location="classpath:properties/resource.properties"/>
+	
+	<!-- 开启aop，对类代理
+	<aop:config proxy-target-class="true"></aop:config> -->
+	<!--通知spring使用cglib而不是jdk的来生成代理方法 AOP可以拦截到Controller --> 
+	<aop:aspectj-autoproxy proxy-target-class="true" /> 
+	<!-- 开启shiro注解支持 -->
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+		
+	<!-- 配置国际化资源 -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="i18n/messages,i18n/errors" />
+		<property name="useCodeAsDefaultMessage" value="true" />
+	</bean>	
+
+	<!--配置静态资源处理，如果映射过，就去找方法，如果没映射过，就默认找静态资源 -->
+	<mvc:default-servlet-handler />
+
+	<!-- 配置静态资源处理，以前的访问URL却无效了，所以需要配置mvc:annotation-driven 处理请求时返回json字符串的中文乱码问题-->
+	<mvc:annotation-driven >
+	 	<mvc:message-converters>
+           <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+               <property name="supportedMediaTypes">
+                   <list>
+                       <value>application/json;charset=UTF-8</value>
+                       <value>text/html;charset=UTF-8</value>
+                   </list>
+               </property>
+           </bean>
+       </mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- springmvc 后台 扫包 @controller -->
+	<context:component-scan base-package="com.yanxiu.ce"
+		use-default-filters="false">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation"
+			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+
+	<!-- jsp视图解析器 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<!--freemarker support -->
+	<bean id="freemarkerResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="order" value="1" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".ftl" />
+		<property name="contentType" value="text/html;charset=utf-8" />
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.freemarker.FreeMarkerView
+			</value>
+		</property>
+		<property name="exposeRequestAttributes" value="true"></property>
+		<property name="exposeSessionAttributes" value="true" />
+		 <!-- 此变量值为pageContext.request, 页面使用方法：request.contextPath   相当于jsp的ctx 页面头<#assign base=request.contextPath />-->  
+		<property name="requestContextAttribute" value="request" />
+	</bean>
+
+	<bean id="freemarkerConfig"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="defaultEncoding" value="UTF-8" />
+		 <!-- freemarker模板位置 -->
+		<property name="templateLoaderPath" value="/WEB-INF/ftls/" />
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="boolean_format">true,false</prop>
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+				<prop key="date_format">yyyy-MM-dd</prop>
+				<prop key="time_format">HH:mm:ss</prop>
+				<prop key="number_format">0.######</prop>
+				<prop key="classic_compatible">true</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 配置文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<!-- 1000M =1G-->
+		<property name="maxUploadSize" value="1024000000"></property>
+	</bean>
+</beans>

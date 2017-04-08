@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.system.dao.UserDao">
+	
+	<sql id="table"> sys_user </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,school,userno,loginname,loginpwd,salt,md5,uid,reflag,realname,mobileno,email,unit,status,type,org,ischangedpwd,pwderrortimes,lastlogintime,pwderrorlasttime,lastalertpwdtime </sql>
+	
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> u.*,p.provincename,c.cityname,t.townname,s.name as schoolname </sql>
+	
+	
+	<resultMap id="user" type="User">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="province" column="province" />
+		<result property="provinceName" column="provincename" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityname" />
+		<result property="town" column="town" />
+		<result property="townName" column="townname" />
+		<result property="school" column="school" />
+		<result property="schoolName" column="schoolname" />
+		<result property="userNo" column="userno" />
+		<result property="loginName" column="loginname" />
+		<result property="loginPwd" column="loginpwd" />
+		<result property="salt" column="salt" />
+		<result property="md5" column="md5" />
+		<result property="uid" column="uid" />
+		<result property="reflag" column="reflag" />
+		<result property="realName" column="realname" />
+		<result property="mobileNo" column="mobileno" />
+		<result property="email" column="email" />
+		<result property="unit" column="unit" />
+		<result property="status" column="status" />
+		<result property="type" column="type" />
+		<result property="org" column="org" />
+		<result property="isChangedPwd" column="ischangedpwd" />
+		<result property="pwdErrorTimes" column="pwderrortimes" />
+		<result property="lastLoginTime" column="lastlogintime" />
+		<result property="pwdErrorLastTime" column="pwderrorlasttime" />
+		<result property="lastAlertPwdTime" column="lastalertpwdtime" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="User" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="userNo != null">userno,</if>
+			<if test="loginName != null">loginname,</if>
+			<if test="loginPwd != null">loginpwd,</if>
+			<if test="salt != null">salt,</if>
+			<if test="md5 != null">md5,</if>
+			<if test="uid != null">uid,</if>
+			<if test="reflag != null">reflag,</if>
+			<if test="realName != null">realname,</if>
+			<if test="mobileNo != null">mobileno,</if>
+			<if test="email != null">email,</if>
+			<if test="unit != null">unit,</if>
+			<if test="status != null">status,</if>
+			<if test="org != null">org,</if>
+			<if test="type != null">type</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="userNo != null">#{userNo},</if>
+			<if test="loginName != null">#{loginName},</if>
+			<if test="loginPwd != null">#{loginPwd},</if>
+			<if test="salt != null">#{salt},</if>
+			<if test="md5 != null">#{md5},</if>
+			<if test="uid != null">#{uid},</if>
+			<if test="reflag != null">#{reflag},</if>
+			<if test="realName != null">#{realName},</if>
+			<if test="mobileNo != null">#{mobileNo},</if>
+			<if test="email != null">#{email},</if>
+			<if test="unit != null">#{unit},</if>
+			<if test="status != null">#{status},</if>
+			<if test="org != null">#{org},</if>
+			<if test="type != null">#{type}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.province},#{item.city},#{item.town},#{item.school},#{item.userNo},#{item.loginName},#{item.loginPwd},#{item.salt},#{item.md5},#{item.uid},#{item.reflag},#{item.realName},#{item.mobileNo},#{item.email},#{item.unit},#{item.status},#{item.org},#{item.type})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="user">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="user" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新用户信息:version+1 实现乐观锁 -->
+	<update id="update" parameterType="User">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			loginname = #{loginName},
+			lastlogintime = #{lastLoginTime},
+			realname = #{realName},
+			mobileno = #{mobileNo},
+			email = #{email},
+			unit = #{unit},
+			status = #{status},
+			org = #{org},
+			type = #{type}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 单条更新用户密码:version+1 实现乐观锁 -->
+	<update id="updatePwd" parameterType="User">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			loginpwd = #{loginPwd},
+            salt = #{salt},
+            md5 = #{md5},
+			ischangedpwd = #{isChangedPwd},
+            pwderrortimes = #{pwdErrorTimes},
+            pwderrorlasttime = #{pwdErrorLastTime},
+            lastalertpwdtime = #{lastAlertPwdTime}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据loginName彻底删除 -->
+	<delete id="deleteByLoginName" parameterType="string">
+		delete from <include refid="table" />
+		where
+		loginname=#{loginName}
+	</delete>
+	
+	<update id="removeByLoginName" parameterType="string">
+		update
+		<include refid="table" />
+		<set>
+			deleted = 1 
+		</set>
+		where 
+		loginname=#{loginName}
+	</update>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> u
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供用于查询列表显示省市县名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> u
+		left join sys_area_province p on u.province=p.provinceno
+		left join sys_area_city c on u.city=c.cityno
+		left join sys_area_town t on u.town=t.townno
+		left join t_school s on u.school=s.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			and u.deleted = 0 
+			<if test="province != null and province !='' and province !=0"> and u.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and u.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and u.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and u.school=#{school}</if>
+			<if test="org != null and org !=''"> and u.org=#{org}</if>
+			<if test="userNo != null and userNo !=''"> 
+				<if test="userNoLike == false"> and u.userno=#{userNo}</if>
+				<if test="userNoLike == true"> and u.userno like  CONCAT('%',#{userNo},'%')</if>
+			</if>
+			<if test="loginName != null and loginName !=''"> 
+				<if test="loginNameLike == false"> and u.loginname=#{loginName}</if>
+				<if test="loginNameLike == true"> and u.loginname like  CONCAT('%',#{loginName},'%')</if>
+			</if>
+			<if test="loginPwd != null and loginPwd !=''"> 
+				<if test="loginPwdLike == false"> and u.loginpwd=#{loginPwd}</if>
+				<if test="loginPwdLike == true"> and u.loginpwd like  CONCAT('%',#{loginPwd},'%')</if>
+			</if>
+			<if test="salt != null and salt !=''"> 
+				<if test="saltLike == false"> and u.salt=#{salt}</if>
+				<if test="saltLike == true"> and u.salt like  CONCAT('%',#{salt},'%')</if>
+			</if>
+			<if test="md5 != null and md5 !=''"> and u.md5=#{md5}</if>
+			<if test="uid != null and uid !=''"> and u.uid=#{uid}</if>
+			<if test="reflag != null and reflag !=''"> and u.reflag=#{reflag}</if>
+			<if test="realName != null and realName !=''"> 
+				<if test="realNameLike == false"> and u.realname=#{realName}</if>
+				<if test="realNameLike == true"> and u.realname like  CONCAT('%',#{realName},'%')</if>
+			</if>
+			<if test="mobileNo != null and mobileNo !=''"> 
+				<if test="mobileNoLike == false"> and u.mobileno=#{mobileNo}</if>
+				<if test="mobileNoLike == true"> and u.mobileno like  CONCAT('%',#{mobileNo},'%')</if>
+			</if>
+			<if test="email != null and email !=''"> 
+				<if test="emailLike == false"> and u.email=#{email}</if>
+				<if test="emailLike == true"> and u.email like  CONCAT('%',#{email},'%')</if>
+			</if>
+			<if test="unit != null and unit !=''"> 
+				<if test="unitLike == false"> and u.unit=#{unit}</if>
+				<if test="unitLike == true"> and u.unit like  CONCAT('%',#{unit},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				<if test="statusLike == false"> and u.status=#{status}</if>
+				<if test="statusLike == true"> and u.status like  CONCAT('%',#{status},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> 
+				<if test="typeLike == false"> and u.type=#{type}</if>
+				<if test="typeLike == true"> and u.type like  CONCAT('%',#{type},'%')</if>
+			</if>
+			<if test="isChangedPwd != null and isChangedPwd !=''"> 
+				<if test="isChangedPwdLike == false"> and u.ischangedpwd=#{isChangedPwd}</if>
+				<if test="isChangedPwdLike == true"> and u.ischangedpwd like  CONCAT('%',#{isChangedPwd},'%')</if>
+			</if>
+			<if test="pwdErrorTimes != null and pwdErrorTimes !=''"> 
+				<if test="pwdErrorTimesLike == false"> and u.pwderrortimes=#{pwdErrorTimes}</if>
+				<if test="pwdErrorTimesLike == true"> and u.pwderrortimes like  CONCAT('%',#{pwdErrorTimes},'%')</if>
+			</if>
+			<if test="lastLoginTime != null and lastLoginTime !=''"> 
+				<if test="lastLoginTimeLike == false"> and u.lastlogintime=#{lastLoginTime}</if>
+				<if test="lastLoginTimeLike == true"> and u.lastlogintime like  CONCAT('%',#{lastLoginTime},'%')</if>
+			</if>
+			<if test="pwdErrorLastTime != null and pwdErrorLastTime !=''"> 
+				<if test="pwdErrorLastTimeLike == false"> and u.pwderrorlasttime=#{pwdErrorLastTime}</if>
+				<if test="pwdErrorLastTimeLike == true"> and u.pwderrorlasttime like  CONCAT('%',#{pwdErrorLastTime},'%')</if>
+			</if>
+			<if test="lastAlertPwdTime != null and lastAlertPwdTime !=''"> 
+				<if test="lastAlertPwdTimeLike == false"> and u.lastalertpwdtime=#{lastAlertPwdTime}</if>
+				<if test="lastAlertPwdTimeLike == true"> and u.lastalertpwdtime like  CONCAT('%',#{lastAlertPwdTime},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				u.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="UserQuery" resultMap="user">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="UserQuery" resultMap="user">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="UserQuery" resultType="long">
+		select count(1) from <include refid="table" /> u
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--校验logName是否存在-->
+	<select id="selectCheckLoginNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="loginName != null and  loginName !=''"> and loginname=#{loginName}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	
+	<!-- 单条根据loginName  -->
+	<update id="updateUid">
+		update
+		<include refid="table" />
+		<set>
+			uid = #{uid}
+		</set>
+		<where>
+			loginname = #{loginName}
+		</where>
+	</update>
+	
+	<select id="selectExcelList" parameterType="UserQuery" resultMap="user">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<update id="removeByIds" parameterType="java.util.List">
+		update
+		<include refid="table" />
+		<set>
+			deleted = 1 
+		</set>
+		where 
+		id in 
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</update>
+	
+</mapper>

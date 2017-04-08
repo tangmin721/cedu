@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.statistics.dao.ReportTrainDao">
+	
+	<!--已陪统计-->
+	<select id="groupByProperty" resultType="nameValue">
+					select 
+					i. ${iname} AS NAME,
+					count(1) AS VALUE
+			FROM
+			(SELECT
+						o.province,
+						o.city,
+						o.town,
+						o.school,
+					<!--	o.BONETYPE,o.STAGE,o.COURSE,o.DEGREE,o.TITLE,o.DUTY,o.GRADE,o.nation,-->
+						t.score,
+						t.CHECKDATE,
+						t.tid,
+						p.`name`,
+						p.traintype,
+						p.TRAINLEVEL,
+						p.implway
+					FROM
+						t_score t
+					LEFT JOIN t_teacher o ON t.TID = o.id
+					LEFT JOIN t_project p on t.PID = p.id
+									
+					<where>
+						<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+						<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+						<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+						<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+						<if test="startDate != null and startDate !='' "> and t.CHECKDATE  <![CDATA[   >=  ]]> #{startDate}</if>
+						<if test="endDate != null and endDate !='' "> and t.CHECKDATE <![CDATA[   <  ]]> #{endDate}</if>
+						and t.SCORETYPE in (1,3) and t.`STATUS`=40
+					</where>
+			) tmp
+			LEFT JOIN ${tableName} i ON i.${joinOnName} = tmp.${property}
+		GROUP BY
+		tmp.${property}
+	</select>
+</mapper>

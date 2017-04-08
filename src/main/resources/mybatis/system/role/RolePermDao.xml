@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.system.dao.RolePermDao">
+	<sql id="table"> sys_role_perm </sql>
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into <include refid="table" /> (roleid,permid)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.roleId},#{item.permId})
+		</foreach>
+	</insert>
+	
+	<!--根据roleId批量删除-->
+	<delete id="deleteByRoleId" parameterType="long">
+		delete from <include refid="table" /> where roleid = #{roleId}
+	</delete>
+	
+	<!--根据menuId批量删除-->
+	<delete id="deleteByPermId" parameterType="long">
+		delete from <include refid="table" /> where permid = #{permId}
+	</delete>
+	
+	<!--根据roleId获取<Perm>-->
+	<select id="selectPermsByRoleId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.PermissionDao.permission">
+		select p.id,p.menuid,p.clzname,p.name,p.code,p.faicon 
+		from <include refid="table" /> rp
+		LEFT JOIN sys_permission p on rp.permid=p.id where p.deleted=0 and rp.roleid=#{roleId};
+	</select>
+	
+</mapper>

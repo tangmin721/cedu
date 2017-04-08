@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherPayDao">
+	
+	<sql id="table"> t_tch_pay </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,seq,year,yearpay,basicpay,meritpay,countrysubsidy,subsidy,othersubsidy,otherpay,insurancehousfund </sql>
+	
+	<sql id="listcolumns"> o.* </sql>
+	
+	<resultMap id="teacherPay" type="TeacherPay">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="seq" column="seq" />
+		<result property="year" column="year" />
+		<result property="yearPay" column="yearpay" />
+		<result property="basicPay" column="basicpay" />
+		<result property="meritPay" column="meritpay" />
+		<result property="countrySubsidy" column="countrysubsidy" />
+		<result property="subsidy" column="subsidy" />
+		<result property="otherSubsidy" column="othersubsidy" />
+		<result property="otherPay" column="otherpay" />
+		<result property="insuranceHousFund" column="insurancehousfund" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherPay" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="seq != null">seq,</if>
+			<if test="year != null">year,</if>
+			<if test="yearPay != null">yearpay,</if>
+			<if test="basicPay != null">basicpay,</if>
+			<if test="meritPay != null">meritpay,</if>
+			<if test="countrySubsidy != null">countrysubsidy,</if>
+			<if test="subsidy != null">subsidy,</if>
+			<if test="otherSubsidy != null">othersubsidy,</if>
+			<if test="otherPay != null">otherpay,</if>
+			<if test="insuranceHousFund != null">insurancehousfund</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="year != null">#{year},</if>
+			<if test="yearPay != null">#{yearPay},</if>
+			<if test="basicPay != null">#{basicPay},</if>
+			<if test="meritPay != null">#{meritPay},</if>
+			<if test="countrySubsidy != null">#{countrySubsidy},</if>
+			<if test="subsidy != null">#{subsidy},</if>
+			<if test="otherSubsidy != null">#{otherSubsidy},</if>
+			<if test="otherPay != null">#{otherPay},</if>
+			<if test="insuranceHousFund != null">#{insuranceHousFund}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.seq},#{item.year},#{item.yearPay},#{item.basicPay},#{item.meritPay},#{item.countrySubsidy},#{item.subsidy},#{item.otherSubsidy},#{item.otherPay},#{item.insuranceHousFund})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherPay">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherPay" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherPay">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			seq = #{seq},
+			year = #{year},
+			yearpay = #{yearPay},
+			basicpay = #{basicPay},
+			meritpay = #{meritPay},
+			countrysubsidy = #{countrySubsidy},
+			subsidy = #{subsidy},
+			othersubsidy = #{otherSubsidy},
+			otherpay = #{otherPay},
+			insurancehousfund = #{insuranceHousFund}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and o.seq=#{seq}</if>
+				<if test="seqLike == true"> and o.seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<if test="year != null and year !=''"> 
+				<if test="yearLike == false"> and o.year=#{year}</if>
+				<if test="yearLike == true"> and o.year like  CONCAT('%',#{year},'%')</if>
+			</if>
+			<if test="yearPay != null and yearPay !=''"> 
+				<if test="yearPayLike == false"> and o.yearpay=#{yearPay}</if>
+				<if test="yearPayLike == true"> and o.yearpay like  CONCAT('%',#{yearPay},'%')</if>
+			</if>
+			<if test="basicPay != null and basicPay !=''"> 
+				<if test="basicPayLike == false"> and o.basicpay=#{basicPay}</if>
+				<if test="basicPayLike == true"> and o.basicpay like  CONCAT('%',#{basicPay},'%')</if>
+			</if>
+			<if test="meritPay != null and meritPay !=''"> 
+				<if test="meritPayLike == false"> and o.meritpay=#{meritPay}</if>
+				<if test="meritPayLike == true"> and o.meritpay like  CONCAT('%',#{meritPay},'%')</if>
+			</if>
+			<if test="countrySubsidy != null and countrySubsidy !=''"> 
+				<if test="countrySubsidyLike == false"> and o.countrysubsidy=#{countrySubsidy}</if>
+				<if test="countrySubsidyLike == true"> and o.countrysubsidy like  CONCAT('%',#{countrySubsidy},'%')</if>
+			</if>
+			<if test="subsidy != null and subsidy !=''"> 
+				<if test="subsidyLike == false"> and o.subsidy=#{subsidy}</if>
+				<if test="subsidyLike == true"> and o.subsidy like  CONCAT('%',#{subsidy},'%')</if>
+			</if>
+			<if test="otherSubsidy != null and otherSubsidy !=''"> 
+				<if test="otherSubsidyLike == false"> and o.othersubsidy=#{otherSubsidy}</if>
+				<if test="otherSubsidyLike == true"> and o.othersubsidy like  CONCAT('%',#{otherSubsidy},'%')</if>
+			</if>
+			<if test="otherPay != null and otherPay !=''"> 
+				<if test="otherPayLike == false"> and o.otherpay=#{otherPay}</if>
+				<if test="otherPayLike == true"> and o.otherpay like  CONCAT('%',#{otherPay},'%')</if>
+			</if>
+			<if test="insuranceHousFund != null and insuranceHousFund !=''"> 
+				<if test="insuranceHousFundLike == false"> and o.insurancehousfund=#{insuranceHousFund}</if>
+				<if test="insuranceHousFundLike == true"> and o.insurancehousfund like  CONCAT('%',#{insuranceHousFund},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherPayQuery" resultMap="teacherPay">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherPayQuery" resultMap="teacherPay">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherPayQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid = #{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

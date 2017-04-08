@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectPersonDao">
+	
+	<sql id="table"> t_project_person </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,pid,oid,pass </sql>
+
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> person.*,o.name,o.tno,o.idcard,p.provincename,c.cityname,t.townname,s.name as schoolname </sql>
+
+	<resultMap id="projectPerson" type="ProjectPerson">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="pid" column="pid" />
+		<result property="oid" column="oid" />
+		<result property="pass" column="pass" />
+
+
+		<result property="name" column="name" />
+		<result property="tno" column="tno" />
+		<result property="idCard" column="idcard" />
+		<result property="provinceName" column="provincename" />
+		<result property="cityName" column="cityname" />
+		<result property="townName" column="townname" />
+		<result property="schoolName" column="schoolname" />
+		<result property="scid" column="scid" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectPerson" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="pid != null">pid,</if>
+			<if test="oid != null">oid,</if>
+			<if test="pass != null">pass</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="pid != null">#{pid},</if>
+			<if test="oid != null">#{oid},</if>
+			<if test="pass != null">#{pass}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.pid},#{item.oid},#{item.pass})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectPerson">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectPerson" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectPerson">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			pid = #{pid},
+			oid = #{oid},
+			pass = #{pass}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''">  and person.tid=#{tid}</if>
+			<if test="pid != null and pid !=''"> and person.pid=#{pid}</if>
+			<if test="oid != null and oid !=''"> and person.oid=#{oid}</if>
+			<if test="pass != null and pass !=''">
+				<if test="pass ==0 or pass==1">
+					and person.pass=#{pass}
+				</if>
+				<if test="pass ==2 ">
+					and person.pass is null
+				</if>
+			</if>
+
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="name != null and name !=''">
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''">
+				<if test="idCardLike == false"> and o.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and o.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''">
+				<if test="tnoLike == false"> and o.tno=#{tno}</if>
+				<if test="tnoLike == true"> and o.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectPersonQuery" resultMap="projectPerson">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectPersonQuery" resultMap="projectPerson">
+		SELECT
+		o.*, p.provincename,
+		c.cityname,
+		t.townname,
+		s. NAME AS schoolname,
+		org.`name` as orgName,
+		org.orgno,
+		project.`hour` as score,
+		project.goodscore,
+		project.passscore,
+		sc.ID as scid
+		FROM
+		(
+		SELECT
+		person.*, o. NAME,
+		o.province,
+		o.city,
+		o.town,
+		o.school,
+		o.tno,
+		o.type,
+		o.idcard
+		FROM
+		t_project_person person
+		LEFT JOIN t_teacher o ON o.id = person.tid
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+		) o
+		LEFT JOIN t_school s ON o.school = s.id
+		LEFT JOIN sys_area_province p ON o.province = p.provinceno
+		LEFT JOIN sys_area_city c ON o.city = c.cityno
+		LEFT JOIN sys_area_town t ON o.town = t.townno
+		LEFT JOIN t_project project ON o.pid = project.id
+		LEFT JOIN t_train_org org ON o.oid = org.id
+		LEFT JOIN t_score sc on sc.TID=o.tid and sc.PID=o.pid
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectPersonQuery" resultType="long">
+		select count(1) from <include refid="table" /> person
+		LEFT JOIN t_teacher o on o.id=person.tid
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckPidTidExit" resultType="long">
+		select count(1) from <include refid="table" />  where pid=#{pid} and tid=#{tid}
+	</select>
+
+	<!--获取可以生成学时的纪录条数-->
+	<select id="selectMakeScoreTotalNum" resultType="int">
+		select count(*) from t_project_person where pid=#{pid} and pass=1
+	</select>
+
+    <!--根据pid获取所有合格的ProjectPerson-->
+	<select id="selectMakeScoreProjectPerson"  resultMap="projectPerson">
+		select id,tid,pid,oid,pass from t_project_person where pid=#{pid} and pass=1
+	</select>
+
+    <!-- 根据pid批量删除 -->
+    <delete id="deleteScoreByPid">
+        delete from t_score where pid=#{pid}
+    </delete>
+
+    <!-- 根据pid,tid-->
+    <delete id="deleteScoreByTidPid">
+        delete from t_score where tid=#{tid} and pid=#{pid}
+    </delete>
+
+    <!--校验某个老师的项目学时是否存在-->
+    <select id="selectCheckScoreExist" resultType="int">
+        select count(1) from t_score where tid=#{tid} and pid=#{pid}
+    </select>
+</mapper>

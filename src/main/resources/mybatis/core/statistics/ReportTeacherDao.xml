@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.statistics.dao.ReportTeacherDao">
+	
+	<sql id="table"> r_teacher </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,school,way,title,tchtype,data </sql>
+	
+	<resultMap id="reportTeacher" type="ReportTeacher">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="way" column="way" />
+		<result property="tchtype" column="tchtype" />
+		<result property="title" column="title" />
+		<result property="data" column="data" />
+	</resultMap>
+	
+	<resultMap id="nameValue" type="com.yanxiu.ce.core.statistics.dto.NameValue">
+		<result property="name" column="name" />
+		<result property="value" column="value" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ReportTeacher" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="way != null">way,</if>
+			<if test="tchtype != null">tchtype,</if>
+			<if test="title != null">title,</if>
+			<if test="data != null">data</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="way != null">#{way},</if>
+			<if test="tchtype != null">#{tchtype},</if>
+			<if test="title != null">#{title},</if>
+			<if test="data != null">#{data}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.province},#{item.city},#{item.town},#{item.school},#{item.way},#{item.tchtype},#{item.title},#{item.data})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="reportTeacher">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="reportTeacher" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ReportTeacher">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			way = #{way},
+			tchtype = #{tchtype},
+			title = #{title},
+			data = #{data}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			and province=#{province} and city=#{city} and town=#{town} and school=#{school} and way=#{way} and tchtype=#{tchtype}
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ReportTeacherQuery" resultMap="reportTeacher">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ReportTeacherQuery" resultMap="reportTeacher">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ReportTeacherQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--/////////////////////////////////统计///////////////////////////////////////////-->
+	<!--清空表-->
+	<delete id="truncate">
+		TRUNCATE r_teacher 
+	</delete>
+	
+	<!--根据类型去重-->
+	<select id="distinctByType" resultType="string">
+		select DISTINCT(${type}) from t_teacher t 
+		<where>
+			<if test="province != null and province !='' "> and t.province=#{province}</if>
+			<if test="city != null and city !='' "> and t.city=#{city}</if>
+			<if test="town != null and town !='' "> and t.town=#{town}</if>
+			<if test="school != null and school !='' "> and t.school=#{school}</if>
+			and t.type=#{tchtype}
+		</where>
+	</select>
+	
+	
+	<!--/////////////////////////////////0.人数 统计start///////////////////////////////////////////-->
+	<select id="groupByCity" resultType="nameValue">
+		select c.cityname as name,count(1) as value from t_teacher t LEFT JOIN sys_area_city c on c.cityno=t.city where t.province=#{province} and t.type=#{tchtype} and t.deleted=0 GROUP BY t.city 
+	</select>
+	
+	<select id="groupByTown" resultType="nameValue">
+		select c.townname as name,count(1) as value from t_teacher t LEFT JOIN sys_area_town c on c.townno=t.town where t.province=#{province} and t.city=#{city} and t.type=#{tchtype} and t.deleted=0 GROUP BY t.town 
+	</select>
+	
+	<!--根据区县 统计各校人数-->
+	<select id="groupBySchool" resultType="nameValue">
+		SELECT
+			c.NAME AS NAME,
+			count(1) AS VALUE
+		FROM
+			t_teacher t
+		LEFT JOIN t_school c ON c.id = t.school
+		WHERE
+			t.province = #{province}
+		AND t.city = #{city}
+		AND t.town = #{town}
+		and t.type=#{tchtype}
+		and t.deleted=0
+		GROUP BY
+			t.school
+	</select>
+	
+	<!--统计本校人数-->
+	<select id="countSchool" resultType="nameValue">
+		SELECT
+			c. NAME AS NAME,
+			count(1) AS
+		VALUE
+		FROM
+			t_teacher t
+		LEFT JOIN t_school c ON c.id = t.school
+		WHERE
+			 t.school = #{school} and t.type=#{tchtype} and t.deleted=0
+	</select>
+	<!--/////////////////////////////////0.人数 统计end///////////////////////////////////////////-->
+	
+	
+	<!--/////////////////////////////////////////////1、学历统计(所有根据数据字典，包括学科、学段) start////////////////////////////////////-->
+	<select id="groupByProperty" resultType="nameValue">
+		SELECT
+		i. NAME AS NAME,
+			count(1) AS
+		VALUE
+		
+		FROM
+			t_teacher t
+		LEFT JOIN ${tableName} i ON i.id = t.${property}
+		<where>
+			<if test="province != null and province !='' "> and t.province=#{province}</if>
+			<if test="city != null and city !='' "> and t.city=#{city}</if>
+			<if test="town != null and town !='' "> and t.town=#{town}</if>
+			<if test="school != null and school !='' "> and t.school=#{school}</if>
+			and t.type=#{tchtype} and t.deleted=0
+		</where>
+		GROUP BY
+			t.${property}
+	</select>
+	<!--/////////////////////////////////////////////1、学历统计 end////////////////////////////////////-->
+	
+	<!--/////////////////////////////////////////////2、根据年龄统计 start////////////////////////////////////-->
+	<select id="groupByAge" resultType="nameValue">
+	SELECT
+	elt(
+			INTERVAL (age, 0, 18, 21, 31, 41, 51),
+			'18岁以下',
+			'18-20岁',
+			'21-30岁',
+			'31-40岁',
+			'41-50岁',
+			'大于50岁'
+		) AS NAME,
+		count(*) AS
+	VALUE
+	
+	FROM
+		(
+			SELECT
+				id,
+				DATE_FORMAT(birthday, "%Y-%m-%d") birthday,
+				CURDATE() AS tyear,
+				(
+					YEAR (now()) - YEAR (birthday) - 1
+				) + (
+					DATE_FORMAT(birthday, '%m%d') <![CDATA[   <=  ]]> DATE_FORMAT(NOW(), '%m%d')
+				) AS age,
+				province,
+				city,
+				town,
+				school,
+				type,
+				deleted
+			FROM
+				t_teacher
+		) AS t
+		<where>
+			<if test="province != null and province !='' "> and t.province=#{province}</if>
+			<if test="city != null and city !='' "> and t.city=#{city}</if>
+			<if test="town != null and town !='' "> and t.town=#{town}</if>
+			<if test="school != null and school !='' "> and t.school=#{school}</if>
+			and t.type=#{tchtype} and t.deleted=0
+		</where>
+	GROUP BY
+		elt(
+			INTERVAL (age, 0, 18, 21, 31, 41, 51),
+			'0-17',
+			'18-20',
+			'21-30',
+			'31-40',
+			'41-50',
+			'> 50'
+		)
+	</select>
+	<!--/////////////////////////////////////////////2、根据年龄统计 ////////////////////////////////////-->
+	
+	<!--/////////////////////////////////////////////2、根据教龄统计 start////////////////////////////////////-->
+	<select id="groupByJoinday" resultType="nameValue">
+	SELECT
+	elt(
+			INTERVAL (age, 0, 3, 6, 11, 21),
+			'3年以下',
+			'3-5年',
+			'6-10年',
+			'11-20年',
+			'20年以上'
+		) AS NAME,
+		count(*) AS
+	VALUE
+	
+	FROM
+		(
+			SELECT
+				id,
+				DATE_FORMAT(teachedday, "%Y-%m-%d") teachedday,
+				CURDATE() AS tyear,
+				(
+					YEAR (now()) - YEAR (teachedday) - 1
+				) + (
+					DATE_FORMAT(teachedday, '%m%d') <![CDATA[   <=  ]]> DATE_FORMAT(NOW(), '%m%d')
+				) AS age,
+				province,
+				city,
+				town,
+				school,
+				type,
+				deleted
+			FROM
+				t_teacher
+		) AS t
+		<where>
+			<if test="province != null and province !='' "> and t.province=#{province}</if>
+			<if test="city != null and city !='' "> and t.city=#{city}</if>
+			<if test="town != null and town !='' "> and t.town=#{town}</if>
+			<if test="school != null and school !='' "> and t.school=#{school}</if>
+			and t.type=#{tchtype} and t.deleted=0
+		</where>
+	GROUP BY
+		elt(
+			INTERVAL (age, 0, 3, 6, 11, 21),
+			'0-3',
+			'3-5',
+			'6-10',
+			'11-20',
+			'>20'
+		)
+	</select>
+	<!--/////////////////////////////////////////////2、根据教龄统计 ////////////////////////////////////-->
+	
+	<!--/////////////////////////////////////////////3、学段统计 start////////////////////////////////////-->
+	<select id="groupByCourse" resultType="nameValue">
+		SELECT
+		i. NAME AS NAME,
+			count(1) AS
+		VALUE
+		
+		FROM
+			t_teacher t
+		LEFT JOIN ${tableName} i ON i.id = t.${property}
+		<where>
+			<if test="province != null and province !='' "> and t.province=#{province}</if>
+			<if test="city != null and city !='' "> and t.city=#{city}</if>
+			<if test="town != null and town !='' "> and t.town=#{town}</if>
+			<if test="school != null and school !='' "> and t.school=#{school}</if>
+			and t.type=#{tchtype} and t.deleted=0
+		</where>
+		GROUP BY
+			t.${property}
+	</select>
+	<!--/////////////////////////////////////////////1、学历统计 end////////////////////////////////////-->
+
+
+	<!--证书人数统计start-->
+
+	<select id="groupCredentByPct" resultType="nameValue">
+		SELECT
+			c.${pct}name AS `name`,
+			count(1) as VALUE
+		FROM
+			(
+				SELECT
+					*
+				FROM
+					(
+						SELECT
+							province, city, town, school, tid, type, id, tch.deleted deleted 
+						FROM
+							(
+								SELECT DISTINCT (tid) FROM t_tch_credent WHERE type = #{credentType}
+							) tchc
+						LEFT JOIN t_teacher tch ON tch.id = tchc.tid
+						WHERE tch.id IS NOT NULL
+					) t
+				WHERE
+				 t.type = #{tchtype} and t.deleted=0
+				 <if test="uppct != null and uppct !=''">
+					 AND t.${uppct} = #{uppctValue}
+				 </if>
+
+			) tmp
+		LEFT JOIN sys_area_${pct} c ON c.${pct}no = tmp.${pct}
+		GROUP BY
+			tmp.${pct}
+	</select>
+
+	<select id="groupCredentBySchool" resultType="nameValue">
+		SELECT
+			c.name AS `name`,
+			count(1) as VALUE
+		FROM
+			(
+				SELECT
+					*
+				FROM
+					(
+						SELECT
+							province,
+							city,
+							town,
+							school,
+							tid,
+							type,
+							id,
+							tch.deleted deleted
+						FROM
+							(
+								SELECT DISTINCT
+									(tid)
+								FROM
+									t_tch_credent
+								WHERE
+									type = #{credentType}
+							) tchc
+						LEFT JOIN t_teacher tch ON tch.id = tchc.tid
+						WHERE
+							tch.id IS NOT NULL
+					) t
+				WHERE
+					t.town = #{town}
+				AND t.type = #{tchtype} and t.deleted=0
+			) tmp
+		LEFT JOIN t_school c ON c.id = tmp.school
+		GROUP BY
+			tmp.school
+
+	</select>
+
+	<select id="countCredentBySchool" resultType="nameValue">
+	SELECT
+		s.`name` AS `name`,
+		count(1) AS
+	VALUE
+
+	FROM
+		(
+			SELECT DISTINCT
+				(tid)
+			FROM
+				t_tch_credent
+			WHERE
+				type = #{credentType}
+		) tchc
+	LEFT JOIN t_teacher tch ON tch.id = tchc.tid
+	LEFT JOIN t_school s ON tch.school = s.id
+	WHERE
+		tch.id IS NOT NULL
+	AND tch.school = #{school}
+	AND tch.type = #{tchtype} and tch.deleted=0
+
+	</select>
+
+	<!--证书人数统计end-->
+</mapper>

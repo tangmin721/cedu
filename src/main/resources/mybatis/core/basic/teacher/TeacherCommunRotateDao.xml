@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherCommunRotateDao">
+	
+	<sql id="table"> t_tch_commun_rotate </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,seq,rotatetype,istranrelation,startdate,enddate,oldunitname,rotateunitname </sql>
+	
+	<sql id="listcolumns"> o.* </sql>
+	
+	<resultMap id="teacherCommunRotate" type="TeacherCommunRotate">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="seq" column="seq" />
+		<result property="rotateType" column="rotatetype" />
+		<result property="isTranRelation" column="istranrelation" />
+		<result property="startDate" column="startdate" />
+		<result property="endDate" column="enddate" />
+		<result property="oldUnitName" column="oldunitname" />
+		<result property="rotateUnitName" column="rotateunitname" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherCommunRotate" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="seq != null">seq,</if>
+			<if test="rotateType != null">rotatetype,</if>
+			<if test="isTranRelation != null">istranrelation,</if>
+			<if test="startDate != null">startdate,</if>
+			<if test="endDate != null">enddate,</if>
+			<if test="oldUnitName != null">oldunitname,</if>
+			<if test="rotateUnitName != null">rotateunitname</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="rotateType != null">#{rotateType},</if>
+			<if test="isTranRelation != null">#{isTranRelation},</if>
+			<if test="startDate != null">#{startDate},</if>
+			<if test="endDate != null">#{endDate},</if>
+			<if test="oldUnitName != null">#{oldUnitName},</if>
+			<if test="rotateUnitName != null">#{rotateUnitName}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.seq},#{item.rotateType},#{item.isTranRelation},#{item.startDate},#{item.endDate},#{item.oldUnitName},#{item.rotateUnitName})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherCommunRotate">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherCommunRotate" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherCommunRotate">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			seq = #{seq},
+			rotatetype = #{rotateType},
+			istranrelation = #{isTranRelation},
+			startdate = #{startDate},
+			enddate = #{endDate},
+			oldunitname = #{oldUnitName},
+			rotateunitname = #{rotateUnitName}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and o.seq=#{seq}</if>
+				<if test="seqLike == true"> and o.seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<if test="rotateType != null and rotateType !=''"> 
+				<if test="rotateTypeLike == false"> and o.rotatetype=#{rotateType}</if>
+				<if test="rotateTypeLike == true"> and o.rotatetype like  CONCAT('%',#{rotateType},'%')</if>
+			</if>
+			<if test="isTranRelation != null and isTranRelation !=''"> 
+				<if test="isTranRelationLike == false"> and o.istranrelation=#{isTranRelation}</if>
+				<if test="isTranRelationLike == true"> and o.istranrelation like  CONCAT('%',#{isTranRelation},'%')</if>
+			</if>
+			<if test="startDate != null and startDate !=''"> 
+				<if test="startDateLike == false"> and o.startdate=#{startDate}</if>
+				<if test="startDateLike == true"> and o.startdate like  CONCAT('%',#{startDate},'%')</if>
+			</if>
+			<if test="endDate != null and endDate !=''"> 
+				<if test="endDateLike == false"> and o.enddate=#{endDate}</if>
+				<if test="endDateLike == true"> and o.enddate like  CONCAT('%',#{endDate},'%')</if>
+			</if>
+			<if test="oldUnitName != null and oldUnitName !=''"> 
+				<if test="oldUnitNameLike == false"> and o.oldunitname=#{oldUnitName}</if>
+				<if test="oldUnitNameLike == true"> and o.oldunitname like  CONCAT('%',#{oldUnitName},'%')</if>
+			</if>
+			<if test="rotateUnitName != null and rotateUnitName !=''"> 
+				<if test="rotateUnitNameLike == false"> and o.rotateunitname=#{rotateUnitName}</if>
+				<if test="rotateUnitNameLike == true"> and o.rotateunitname like  CONCAT('%',#{rotateUnitName},'%')</if>
+			</if>
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherCommunRotateQuery" resultMap="teacherCommunRotate">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherCommunRotateQuery" resultMap="teacherCommunRotate">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherCommunRotateQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid = #{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

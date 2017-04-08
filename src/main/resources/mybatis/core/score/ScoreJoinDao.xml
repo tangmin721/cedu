@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.score.dao.ScoreJoinDao">
+	
+	<sql id="table"> t_score </sql>
+	
+	<sql id="listcolumns"> count(1) as dnum,o.province,o.city,o.town,o.school,p.provincename,c.cityname,t.townname,s.name as schoolname,s.schoolno as schoolno </sql>
+	
+	<resultMap id="scoreJoin" type="ScoreJoin">
+		<result property="dnum" column="dnum" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="provinceName" column="provincename" />
+		<result property="cityName" column="cityname" />
+		<result property="townName" column="townname" />
+		<result property="schoolName" column="schoolname" />
+		<result property="schoolNo" column="schoolno" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="status != null and status !=''">  and o.status=#{status}</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	
+	<!--区县级 分页 -->
+	<select id="selectTownListPage" parameterType="ScoreJoinQuery" resultMap="scoreJoin">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		GROUP BY o.SCHOOL
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--区县级 总条数-->
+	<select id="selectTownListTotal" parameterType="ScoreJoinQuery" resultType="long">
+		select count(1) from (select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+		GROUP BY o.SCHOOL) tmp
+	</select>
+	
+	<!--省级 分页 -->
+	<select id="selectProvinceListPage" parameterType="ScoreJoinQuery" resultMap="scoreJoin">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		GROUP BY o.town
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--省级 总条数-->
+	<select id="selectProvinceListTotal" parameterType="ScoreJoinQuery" resultType="long">
+		select count(1) from (select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+		GROUP BY o.town) tmp
+	</select>
+	
+</mapper>

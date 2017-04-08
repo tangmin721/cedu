@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherStudyExpDao">
+	
+	<sql id="table"> t_tch_study_exp </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,startdate,enddate,univ,degreetype,degree,major,memo,degreeFlag,seq,degreecountrytype,isnormalcollege,academicdegree,academicdegreename,academiccountrytype,academicunit,grantdate,studymode,studyunittype </sql>
+	
+	<resultMap id="teacherStudyExp" type="TeacherStudyExp">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="startDate" column="startdate" />
+		<result property="endDate" column="enddate" />
+		<result property="univ" column="univ" />
+		<result property="degreeType" column="degreetype" />
+		<result property="degree" column="degree" />
+		<result property="major" column="major" />
+		<result property="memo" column="memo" />
+		<result property="degreeFlag" column="degreeFlag" />
+		<result property="seq" column="seq" />
+		<result property="degreeCountryType" column="degreecountrytype" />
+		<result property="isNormalCollege" column="isnormalcollege" />
+		<result property="academicDegree" column="academicdegree" />
+		<result property="academicDegreeName" column="academicdegreename" />
+		<result property="academicCountryType" column="academiccountrytype" />
+		<result property="academicUnit" column="academicunit" />
+		<result property="grantDate" column="grantdate" />
+		<result property="studyMode" column="studymode" />
+		<result property="studyUnitType" column="studyunittype" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherStudyExp" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="startDate != null">startdate,</if>
+			<if test="endDate != null">enddate,</if>
+			<if test="univ != null">univ,</if>
+			<if test="degreeType != null">degreetype,</if>
+			<if test="degree != null">degree,</if>
+			<if test="major != null">major,</if>
+			<if test="memo != null">memo,</if>
+			<if test="degreeFlag != null">degreeFlag,</if>
+			<if test="seq != null">seq,</if>
+			<if test="degreeCountryType != null">degreecountrytype,</if>
+			<if test="isNormalCollege != null">isnormalcollege,</if>
+			<if test="academicDegree != null">academicdegree,</if>
+			<if test="academicDegreeName != null">academicdegreename,</if>
+			<if test="academicCountryType != null">academiccountrytype,</if>
+			<if test="academicUnit != null">academicunit,</if>
+			<if test="grantDate != null">grantdate,</if>
+			<if test="studyMode != null">studymode,</if>
+			<if test="studyUnitType != null">studyunittype</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="startDate != null">#{startDate},</if>
+			<if test="endDate != null">#{endDate},</if>
+			<if test="univ != null">#{univ},</if>
+			<if test="degreeType != null">#{degreeType},</if>
+			<if test="degree != null">#{degree},</if>
+			<if test="major != null">#{major},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="degreeFlag != null">#{degreeFlag},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="degreeCountryType != null">#{degreeCountryType},</if>
+			<if test="isNormalCollege != null">#{isNormalCollege},</if>
+			<if test="academicDegree != null">#{academicDegree},</if>
+			<if test="academicDegreeName != null">#{academicDegreeName},</if>
+			<if test="academicCountryType != null">#{academicCountryType},</if>
+			<if test="academicUnit != null">#{academicUnit},</if>
+			<if test="grantDate != null">#{grantDate},</if>
+			<if test="studyMode != null">#{studyMode},</if>
+			<if test="studyUnitType != null">#{studyUnitType}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.startDate},#{item.endDate},#{item.univ},#{item.degreeType},#{item.degree},#{item.major},#{item.memo},#{item.degreeFlag},#{item.seq},#{item.degreeCountryType},#{item.isNormalCollege},#{item.academicDegree},#{item.academicDegreeName},#{item.academicCountryType},#{item.academicUnit},#{item.grantDate},#{item.studyMode},#{item.studyUnitType})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherStudyExp">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherStudyExp" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherStudyExp">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			seq = #{seq},
+			degree = #{degree},
+			startdate = #{startDate},
+			enddate = #{endDate},
+			univ = #{univ},
+			major = #{major},
+			degreetype = #{degreeType},
+			degreeflag = #{degreeFlag},
+			memo = #{memo},
+			degreecountrytype = #{degreeCountryType},
+			isnormalcollege = #{isNormalCollege},
+			academicdegree = #{academicDegree},
+			academicdegreename = #{academicDegreeName},
+			academiccountrytype = #{academicCountryType},
+			academicunit = #{academicUnit},
+			grantdate = #{grantDate},
+			studymode = #{studyMode},
+			studyunittype = #{studyUnitType}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and tid=#{tid}</if>
+				<if test="tidLike == true"> and tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="startDate != null and startDate !=''"> 
+				<if test="startDateLike == false"> and startdate=#{startDate}</if>
+				<if test="startDateLike == true"> and startdate like  CONCAT('%',#{startDate},'%')</if>
+			</if>
+			<if test="endDate != null and endDate !=''"> 
+				<if test="endDateLike == false"> and enddate=#{endDate}</if>
+				<if test="endDateLike == true"> and enddate like  CONCAT('%',#{endDate},'%')</if>
+			</if>
+			<if test="univ != null and univ !=''"> 
+				<if test="univLike == false"> and univ=#{univ}</if>
+				<if test="univLike == true"> and univ like  CONCAT('%',#{univ},'%')</if>
+			</if>
+			<if test="degreeType != null and degreeType !=''"> 
+				<if test="degreeTypeLike == false"> and degreetype=#{degreeType}</if>
+				<if test="degreeTypeLike == true"> and degreetype like  CONCAT('%',#{degreeType},'%')</if>
+			</if>
+			<if test="degree != null and degree !=''"> 
+				<if test="degreeLike == false"> and degree=#{degree}</if>
+				<if test="degreeLike == true"> and degree like  CONCAT('%',#{degree},'%')</if>
+			</if>
+			<if test="major != null and major !=''"> 
+				<if test="majorLike == false"> and major=#{major}</if>
+				<if test="majorLike == true"> and major like  CONCAT('%',#{major},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and memo=#{memo}</if>
+				<if test="memoLike == true"> and memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and seq=#{seq}</if>
+				<if test="seqLike == true"> and seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherStudyExpQuery" resultMap="teacherStudyExp">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TeacherStudyExpQuery" resultMap="teacherStudyExp">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherStudyExpQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid=#{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--根据tid批量删除-->
+	<delete id="deleteByTid" parameterType="long">
+		delete from <include refid="table" /> where tid = #{tid}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.TrainOrgDao">
+	
+	<sql id="table"> t_train_org </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,school,usertype,orgno,name,type,level,address,postcode,linkman,idcard,tel,phone,email,memo </sql>
+	
+	<sql id="listcolumns"> o.*,p.provincename,c.cityname,t.townname,s.name as schoolname,i.name as typename,ii.name as levelname </sql>
+	
+	<resultMap id="trainOrg" type="TrainOrg">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="province" column="province" />
+		<result property="provinceName" column="provincename" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityname" />
+		<result property="town" column="town" />
+		<result property="townName" column="townname" />
+		<result property="school" column="school" />
+		<result property="schoolName" column="schoolname" />
+		<result property="userType" column="usertype" />
+		<result property="orgNo" column="orgno" />
+		<result property="name" column="name" />
+		<result property="type" column="type" />
+		<result property="typeName" column="typename" />
+		<result property="level" column="level" />
+		<result property="levelName" column="levelname" />
+		<result property="address" column="address" />
+		<result property="postCode" column="postcode" />
+		<result property="linkman" column="linkman" />
+		<result property="idCard" column="idcard" />
+		<result property="tel" column="tel" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="memo" column="memo" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TrainOrg" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="userType != null">usertype,</if>
+			<if test="orgNo != null">orgno,</if>
+			<if test="name != null">name,</if>
+			<if test="type != null">type,</if>
+			<if test="level != null">level,</if>
+			<if test="address != null">address,</if>
+			<if test="postCode != null">postcode,</if>
+			<if test="linkman != null">linkman,</if>
+			<if test="idCard != null">idcard,</if>
+			<if test="tel != null">tel,</if>
+			<if test="phone != null">phone,</if>
+			<if test="email != null">email,</if>
+			<if test="memo != null">memo</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="userType != null">#{userType},</if>
+			<if test="orgNo != null">#{orgNo},</if>
+			<if test="name != null">#{name},</if>
+			<if test="type != null">#{type},</if>
+			<if test="level != null">#{level},</if>
+			<if test="address != null">#{address},</if>
+			<if test="postCode != null">#{postCode},</if>
+			<if test="linkman != null">#{linkman},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="tel != null">#{tel},</if>
+			<if test="phone != null">#{phone},</if>
+			<if test="email != null">#{email},</if>
+			<if test="memo != null">#{memo}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},
+			#{item.province},#{item.city},#{item.town},#{item.school},#{item.userType},#{item.orgNo},
+			#{item.name},#{item.type},#{item.level},#{item.address},#{item.postCode},#{item.linkman},#{item.idCard},#{item.tel},#{item.phone},#{item.email},#{item.memo})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="trainOrg">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	
+	<!-- 根据orgNo查询 -->
+	<select id="selectByOrgNo" resultMap="trainOrg">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		orgNo=#{orgNo}
+	</select>
+	
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="trainOrg" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TrainOrg">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			usertype = #{userType},
+			orgno = #{orgNo},
+			name = #{name},
+			type = #{type},
+			level = #{level},
+			address = #{address},
+			postcode = #{postCode},
+			linkman = #{linkman},
+			idcard = #{idCard},
+			tel = #{tel},
+			phone = #{phone},
+			email = #{email},
+			memo = #{memo}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+		left join sys_dict_item i on o.type=i.id
+ 		left join sys_dict_item ii on o.level=ii.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0 and province !=-1"> and o.province=#{province}</if>
+			<if test="province == -1"> and o.province!=0</if>
+			<if test="city != null and city !='' and city !=0 and city !=-1"> and o.city=#{city}</if>
+			<if test="city == -1"> and o.city!=0</if>
+			<if test="town != null and town !='' and town !=0 and town !=-1"> and o.town=#{town}</if>
+			<if test="town == -1"> and o.town!=0</if>
+			<if test="school != null and school !='' and school !=0 and school !=-1"> and o.school=#{school}</if>
+			<if test="school == -1"> and o.school!=0</if>
+			<if test="userType != null and userType !=''">  and o.usertype=#{userType}</if>
+			<if test="orgNo != null and orgNo !=''"> 
+				<if test="orgNoLike == false"> and o.orgno=#{orgNo}</if>
+				<if test="orgNoLike == true"> and o.orgno like  CONCAT('%',#{orgNo},'%')</if>
+			</if>
+			
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> and o.type=#{type}
+			</if>
+			<if test="level != null and level !=''"> and o.level=#{level}
+			</if>
+			<if test="address != null and address !=''"> 
+				<if test="addressLike == false"> and o.address=#{address}</if>
+				<if test="addressLike == true"> and o.address like  CONCAT('%',#{address},'%')</if>
+			</if>
+			<if test="postCode != null and postCode !=''"> 
+				<if test="postCodeLike == false"> and o.postcode=#{postCode}</if>
+				<if test="postCodeLike == true"> and o.postcode like  CONCAT('%',#{postCode},'%')</if>
+			</if>
+			<if test="linkman != null and linkman !=''"> 
+				<if test="linkmanLike == false"> and o.linkman=#{linkman}</if>
+				<if test="linkmanLike == true"> and o.linkman like  CONCAT('%',#{linkman},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and o.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and o.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tel != null and tel !=''"> 
+				<if test="telLike == false"> and o.tel=#{tel}</if>
+				<if test="telLike == true"> and o.tel like  CONCAT('%',#{tel},'%')</if>
+			</if>
+			<if test="phone != null and phone !=''"> 
+				<if test="phoneLike == false"> and o.phone=#{phone}</if>
+				<if test="phoneLike == true"> and o.phone like  CONCAT('%',#{phone},'%')</if>
+			</if>
+			<if test="email != null and email !=''"> 
+				<if test="emailLike == false"> and o.email=#{email}</if>
+				<if test="emailLike == true"> and o.email like  CONCAT('%',#{email},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and o.memo=#{memo}</if>
+				<if test="memoLike == true"> and o.memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TrainOrgQuery" resultMap="trainOrg">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TrainOrgQuery" resultMap="trainOrg">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TrainOrgQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取school编号序列-->
+	<select id="nextSequenceVal" resultType="long">
+		SELECT  FUN_SEQ('ORG_NO_SEQ')
+	</select>
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

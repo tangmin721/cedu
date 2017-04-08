@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.system.dao.RoleMenuDao">
+	<sql id="table"> sys_role_menu </sql>
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into <include refid="table" /> (roleid,menuid)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.roleId},#{item.menuId})
+		</foreach>
+	</insert>
+	
+	<!--根据roleId批量删除-->
+	<delete id="deleteByRoleId" parameterType="long">
+		delete from <include refid="table" /> where roleid = #{roleId}
+	</delete>
+	
+	<!--根据menuId批量删除-->
+	<delete id="deleteByMenuId" parameterType="long">
+		delete from <include refid="table" /> where menuid = #{menuId}
+	</delete>
+	
+	<!--根据roleId获取<Menu>-->
+	<select id="selectMenusByRoleId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.MenuDao.menu">
+		select m.id,m.pid,m.name,m.faicon,m.tabid,m.url,m.thelast,m.authrizer,m.seq,m.memo 
+		from sys_role_menu rm 
+		LEFT JOIN sys_menu m on rm.menuid=m.id  where rm.roleid=#{roleId} and m.deleted=0 and m.active=1;
+	</select>
+	
+	<!--根据roleId获取<Menu> 且过滤显示菜单-->
+	<select id="selectShowerMenusByRoleId" parameterType="long" resultMap="com.yanxiu.ce.system.dao.MenuDao.menu">
+		select m.id,m.pid,m.name,m.faicon,m.tabid,m.url,m.thelast,m.authrizer,m.seq,m.memo 
+		from sys_role_menu rm 
+		LEFT JOIN sys_menu m on rm.menuid=m.id  where rm.roleid=#{roleId} and m.deleted=0 and m.active=1 and m.shower=1;
+	</select>
+	
+</mapper>

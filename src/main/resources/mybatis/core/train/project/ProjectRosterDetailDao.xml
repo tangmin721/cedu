@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectRosterDetailDao">
+	
+	<sql id="table"> t_project_roster_detail </sql>
+	<sql id="columns"> id,version,createtime,deleted,rosterid,tid </sql>
+	
+	<sql id="listcolumns"> o.*,t.name,t.tno </sql>
+	
+	<resultMap id="projectRosterDetail" type="ProjectRosterDetail">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="rosterId" column="rosterid" />
+		<result property="tid" column="tid" />
+		<result property="name" column="name" />
+		<result property="tno" column="tno" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectRosterDetail" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="rosterId != null">rosterid,</if>
+			<if test="tid != null">tid</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="rosterId != null">#{rosterId},</if>
+			<if test="tid != null">#{tid}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.rosterId},#{item.tid})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectRosterDetail">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectRosterDetail" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectRosterDetail">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			rosterid = #{rosterId},
+			tid = #{tid}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_teacher t ON o.tid=t.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="rosterId != null and rosterId !=''"> 
+				<if test="rosterIdLike == false"> and o.rosterid=#{rosterId}</if>
+				<if test="rosterIdLike == true"> and o.rosterid like  CONCAT('%',#{rosterId},'%')</if>
+			</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and t.name=#{name}</if>
+				<if test="nameLike == true"> and t.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''"> 
+				<if test="tnoLike == false"> and t.tno=#{tno}</if>
+				<if test="tnoLike == true"> and t.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				and s.status=#{status}
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectRosterDetailQuery" resultMap="projectRosterDetail">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectRosterDetailQuery" resultMap="projectRosterDetail">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectRosterDetailQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		LEFT JOIN t_teacher t ON o.tid=t.id
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<select id="selectCheckTidApplyidExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="tid != null and  tid !=''"> and tid=#{tid}</if>
+			<if test="rosterid != null and  rosterid !=''"> and rosterid=#{rosterid}</if>
+		</where>
+	</select>
+	
+	
+	
+	<!--参培人明细 片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorTrainTeachersForPage">
+		SELECT t.id,t. NAME,t.tno,s.status FROM (	
+			SELECT
+				DISTINCT
+				prd.tid,
+				pr.pid
+			FROM
+				t_project_roster_detail prd
+			RIGHT JOIN t_project_roster pr ON prd.rosterid = pr.id
+			WHERE
+				rosterid IN (
+					SELECT
+						id
+					FROM
+						t_project_roster r
+					WHERE
+						r.pid = #{pid}	
+					AND r. STATUS = 2
+				)
+		) d
+		LEFT JOIN t_teacher t ON d.tid = t.id
+		LEFT JOIN t_tch_score s ON s.tid = d.tid AND d.pid = s.pid
+	</sql>
+	
+	<!-- 参培人明细    分页 -->
+	<select id="selectTrainTeachersPage" parameterType="ProjectRosterDetailQuery" resultMap="projectRosterDetail">
+		<include refid="selectorTrainTeachersForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectTrainTeachersTotal" parameterType="ProjectRosterDetailQuery" resultType="long">
+		SELECT count(1) FROM (	
+			SELECT
+				DISTINCT
+				prd.tid,
+				pr.pid
+			FROM
+				t_project_roster_detail prd
+			RIGHT JOIN t_project_roster pr ON prd.rosterid = pr.id
+			WHERE
+				rosterid IN (
+					SELECT
+						id
+					FROM
+						t_project_roster r
+					WHERE
+						r.pid = #{pid}	
+					AND r. STATUS = 2
+				)
+		) d
+		LEFT JOIN t_teacher t ON d.tid = t.id
+		LEFT JOIN t_tch_score s ON s.tid = d.tid AND d.pid = s.pid
+		<include refid="selectorWhere" />
+	</select>
+	
+	
+</mapper>

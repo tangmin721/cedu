@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherEducationDao">
+	
+	<sql id="table"> t_tch_education </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,seq,year,term,tchsegment,tchstatus,tchstatusdesc,tchcoursetype,secondarycoursetype,secondarysubjecttype,classhour,otherjobtype,otherclasshour,parttimejob,parttimename,specialtchcoursetype </sql>
+	
+	<sql id="listcolumns"> o.*</sql>
+	
+	<resultMap id="teacherEducation" type="TeacherEducation">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="seq" column="seq" />
+		<result property="year" column="year" />
+		<result property="term" column="term" />
+		<result property="tchSegment" column="tchsegment" />
+		<result property="tchStatus" column="tchstatus" />
+		<result property="tchStatusDesc" column="tchstatusdesc" />
+		<result property="tchCourseType" column="tchcoursetype" />
+		<result property="secondaryCourseType" column="secondarycoursetype" />
+		<result property="secondarySubjectType" column="secondarysubjecttype" />
+		<result property="classHour" column="classhour" />
+		<result property="otherJobType" column="otherjobtype" />
+		<result property="otherClassHour" column="otherclasshour" />
+		<result property="partTimeJob" column="parttimejob" />
+		<result property="partTimeName" column="parttimename" />
+		<result property="specialTchCourseType" column="specialtchcoursetype"/>
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherEducation" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="seq != null">seq,</if>
+			<if test="year != null">year,</if>
+			<if test="term != null">term,</if>
+			<if test="tchSegment != null">tchsegment,</if>
+			<if test="tchStatus != null">tchstatus,</if>
+			<if test="tchStatusDesc != null">tchstatusdesc,</if>
+			<if test="tchCourseType != null">tchcoursetype,</if>
+			<if test="secondaryCourseType != null">secondarycoursetype,</if>
+			<if test="secondarySubjectType != null">secondarysubjecttype,</if>
+			<if test="classHour != null">classhour,</if>
+			<if test="otherJobType != null">otherjobtype,</if>
+			<if test="otherClassHour != null">otherclasshour,</if>
+			<if test="partTimeJob != null">parttimejob,</if>
+			<if test="partTimeName != null">parttimename,</if>
+			<if test="specialTchCourseType != null">specialtchcoursetype</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="seq != null">#{seq},</if>
+			<if test="year != null">#{year},</if>
+			<if test="term != null">#{term},</if>
+			<if test="tchSegment != null">#{tchSegment},</if>
+			<if test="tchStatus != null">#{tchStatus},</if>
+			<if test="tchStatusDesc != null">#{tchStatusDesc},</if>
+			<if test="tchCourseType != null">#{tchCourseType},</if>
+			<if test="secondaryCourseType != null">#{secondaryCourseType},</if>
+			<if test="secondarySubjectType != null">#{secondarySubjectType},</if>
+			<if test="classHour != null">#{classHour},</if>
+			<if test="otherJobType != null">#{otherJobType},</if>
+			<if test="otherClassHour != null">#{otherClassHour},</if>
+			<if test="partTimeJob != null">#{partTimeJob},</if>
+			<if test="partTimeName != null">#{partTimeName},</if>
+			<if test="specialTchCourseType != null">#{specialTchCourseType}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.seq},#{item.year},#{item.term},#{item.tchSegment},#{item.tchStatus},#{item.tchStatusDesc},#{item.tchCourseType},#{item.secondaryCourseType},#{item.secondarySubjectType},#{item.classHour},#{item.otherJobType},#{item.otherClassHour},#{item.partTimeJob},#{item.partTimeName},#{item.specialTchCourseType})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherEducation">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherEducation" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherEducation">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			seq = #{seq},
+			year = #{year},
+			term = #{term},
+			tchsegment = #{tchSegment},
+			tchstatus = #{tchStatus},
+			tchstatusdesc = #{tchStatusDesc},
+			tchcoursetype = #{tchCourseType},
+			secondarycoursetype = #{secondaryCourseType},
+			secondarysubjecttype = #{secondarySubjectType},
+			classhour = #{classHour},
+			otherjobtype = #{otherJobType},
+			otherclasshour = #{otherClassHour},
+			parttimejob = #{partTimeJob},
+			parttimename = #{partTimeName},
+			specialtchcoursetype = #{specialTchCourseType}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and o.seq=#{seq}</if>
+				<if test="seqLike == true"> and o.seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<if test="year != null and year !=''"> 
+				<if test="yearLike == false"> and o.year=#{year}</if>
+				<if test="yearLike == true"> and o.year like  CONCAT('%',#{year},'%')</if>
+			</if>
+			<if test="term != null and term !=''"> 
+				<if test="termLike == false"> and o.term=#{term}</if>
+				<if test="termLike == true"> and o.term like  CONCAT('%',#{term},'%')</if>
+			</if>
+			<if test="tchSegment != null and tchSegment !=''"> 
+				<if test="tchSegmentLike == false"> and o.tchsegment=#{tchSegment}</if>
+				<if test="tchSegmentLike == true"> and o.tchsegment like  CONCAT('%',#{tchSegment},'%')</if>
+			</if>
+			<if test="tchStatus != null and tchStatus !=''"> 
+				<if test="tchStatusLike == false"> and o.tchstatus=#{tchStatus}</if>
+				<if test="tchStatusLike == true"> and o.tchstatus like  CONCAT('%',#{tchStatus},'%')</if>
+			</if>
+			<if test="tchStatusDesc != null and tchStatusDesc !=''"> 
+				<if test="tchStatusDescLike == false"> and o.tchstatusdesc=#{tchStatusDesc}</if>
+				<if test="tchStatusDescLike == true"> and o.tchstatusdesc like  CONCAT('%',#{tchStatusDesc},'%')</if>
+			</if>
+			<if test="tchCourseType != null and tchCourseType !=''"> 
+				<if test="tchCourseTypeLike == false"> and o.tchcoursetype=#{tchCourseType}</if>
+				<if test="tchCourseTypeLike == true"> and o.tchcoursetype like  CONCAT('%',#{tchCourseType},'%')</if>
+			</if>
+			<if test="secondaryCourseType != null and secondaryCourseType !=''"> 
+				<if test="secondaryCourseTypeLike == false"> and o.secondarycoursetype=#{secondaryCourseType}</if>
+				<if test="secondaryCourseTypeLike == true"> and o.secondarycoursetype like  CONCAT('%',#{secondaryCourseType},'%')</if>
+			</if>
+			<if test="secondarySubjectType != null and secondarySubjectType !=''"> 
+				<if test="secondarySubjectTypeLike == false"> and o.secondarysubjecttype=#{secondarySubjectType}</if>
+				<if test="secondarySubjectTypeLike == true"> and o.secondarysubjecttype like  CONCAT('%',#{secondarySubjectType},'%')</if>
+			</if>
+			<if test="classHour != null and classHour !=''"> 
+				<if test="classHourLike == false"> and o.classhour=#{classHour}</if>
+				<if test="classHourLike == true"> and o.classhour like  CONCAT('%',#{classHour},'%')</if>
+			</if>
+			<if test="otherJobType != null and otherJobType !=''"> 
+				<if test="otherJobTypeLike == false"> and o.otherjobtype=#{otherJobType}</if>
+				<if test="otherJobTypeLike == true"> and o.otherjobtype like  CONCAT('%',#{otherJobType},'%')</if>
+			</if>
+			<if test="otherClassHour != null and otherClassHour !=''"> 
+				<if test="otherClassHourLike == false"> and o.otherclasshour=#{otherClassHour}</if>
+				<if test="otherClassHourLike == true"> and o.otherclasshour like  CONCAT('%',#{otherClassHour},'%')</if>
+			</if>
+			<if test="partTimeJob != null and partTimeJob !=''"> 
+				<if test="partTimeJobLike == false"> and o.parttimejob=#{partTimeJob}</if>
+				<if test="partTimeJobLike == true"> and o.parttimejob like  CONCAT('%',#{partTimeJob},'%')</if>
+			</if>
+			<if test="partTimeName != null and partTimeName !=''"> 
+				<if test="partTimeNameLike == false"> and o.parttimename=#{partTimeName}</if>
+				<if test="partTimeNameLike == true"> and o.parttimename like  CONCAT('%',#{partTimeName},'%')</if>
+			</if>
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherEducationQuery" resultMap="teacherEducation">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherEducationQuery" resultMap="teacherEducation">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherEducationQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid = #{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

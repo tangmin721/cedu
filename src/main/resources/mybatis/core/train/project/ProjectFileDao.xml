@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectFileDao">
+	
+	<sql id="table"> t_project_file </sql>
+	<sql id="columns"> id,version,createtime,deleted,pid,orgid,type,filename,fileid,status,checkdesc </sql>
+	
+	<resultMap id="projectFile" type="ProjectFile">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="pid" column="pid" />
+		<result property="orgId" column="orgid" />
+		<result property="type" column="type" />
+		<result property="fileName" column="filename" />
+		<result property="fileId" column="fileid" />
+		<result property="status" column="status" />
+		<result property="checkDesc" column="checkdesc" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectFile" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="pid != null">pid,</if>
+			<if test="orgId != null">orgid,</if>
+			<if test="type != null">type,</if>
+			<if test="fileName != null">filename,</if>
+			<if test="fileId != null">fileid,</if>
+			<if test="status != null">status,</if>
+			<if test="checkDesc != null">checkdesc</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="pid != null">#{pid},</if>
+			<if test="orgId != null">#{orgId},</if>
+			<if test="type != null">#{type},</if>
+			<if test="fileName != null">#{fileName},</if>
+			<if test="fileId != null">#{fileId},</if>
+			<if test="status != null">#{status},</if>
+			<if test="checkDesc != null">#{checkDesc}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.pid},#{item.orgId},#{item.type},#{item.fileName},#{item.fileId},#{item.status},#{item.checkDesc})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectFile">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据pid orgId  type查询   查询 -->
+	<select id="selectByPidOrgType" resultMap="projectFile">
+		select <include refid="columns" /> from <include refid="table" />
+		<where>
+			<if test="pid != null and  pid !=''"> and pid=#{pid} </if>
+			<if test="orgId != null and  orgId !=''"> and orgid=#{orgId}</if>
+			<if test="type != null and  type !=''"> and type=#{type}</if>
+		</where>
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectFile" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectFile">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			pid = #{pid},
+			orgid = #{orgId},
+			type = #{type},
+			filename = #{fileName},
+			fileid = #{fileId},
+			status = #{status},
+			checkdesc = #{checkDesc}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="pid != null and pid !=''"> 
+				<if test="pidLike == false"> and pid=#{pid}</if>
+				<if test="pidLike == true"> and pid like  CONCAT('%',#{pid},'%')</if>
+			</if>
+			<if test="orgId != null and orgId !=''"> 
+				<if test="orgIdLike == false"> and orgid=#{orgId}</if>
+				<if test="orgIdLike == true"> and orgid like  CONCAT('%',#{orgId},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> 
+				<if test="typeLike == false"> and type=#{type}</if>
+				<if test="typeLike == true"> and type like  CONCAT('%',#{type},'%')</if>
+			</if>
+			<if test="fileName != null and fileName !=''"> 
+				<if test="fileNameLike == false"> and filename=#{fileName}</if>
+				<if test="fileNameLike == true"> and filename like  CONCAT('%',#{fileName},'%')</if>
+			</if>
+			<if test="fileId != null and fileId !=''"> 
+				<if test="fileIdLike == false"> and fileid=#{fileId}</if>
+				<if test="fileIdLike == true"> and fileid like  CONCAT('%',#{fileId},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				<if test="statusLike == false"> and status=#{status}</if>
+				<if test="statusLike == true"> and status like  CONCAT('%',#{status},'%')</if>
+			</if>
+			<if test="checkDesc != null and checkDesc !=''"> 
+				<if test="checkDescLike == false"> and checkdesc=#{checkDesc}</if>
+				<if test="checkDescLike == true"> and checkdesc like  CONCAT('%',#{checkDesc},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectFileQuery" resultMap="projectFile">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectFileQuery" resultMap="projectFile">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectFileQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

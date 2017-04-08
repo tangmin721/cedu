@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.statistics.dao.ReportProjectDao">
+	
+	<!--/////////////////////////////////////////////1、学历统计(所有根据数据字典，包括学科、学段) start////////////////////////////////////-->
+	<select id="groupByProperty" resultType="nameValue">
+		SELECT
+		i.name as name,
+		count(1) AS value
+		FROM
+			t_project o
+		LEFT JOIN ${tableName} i ON i.id = o.${property}
+		<where>
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="schoolYear != null and schoolYear !='' "> and o.schoolyear=#{schoolYear}</if>
+			and o.status !=0
+		</where>
+			GROUP BY
+			o.${property}
+	</select>
+	<!--/////////////////////////////////////////////1、学历统计 end////////////////////////////////////-->
+	
+</mapper>

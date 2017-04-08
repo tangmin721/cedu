@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectRosterDao">
+	
+	<sql id="table"> t_project_roster </sql>
+	<sql id="columns"> id,version,createtime,deleted,pid,rosterno,reportdate,applyuserid,memo,checkuserid,checkdate,checkdesc,status </sql>
+	
+	<sql id="listcolumns"> o.*,s.realname as applyusername,ss.realname as checkusername </sql>
+	
+	<resultMap id="projectRoster" type="ProjectRoster">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="pid" column="pid" />
+		<result property="rosterNo" column="rosterno" />
+		<result property="reportDate" column="reportdate" />
+		<result property="applyUserId" column="applyuserid" />
+		<result property="applyUserName" column="applyusername" />
+		<result property="memo" column="memo" />
+		<result property="checkUserId" column="checkuserid" />
+		<result property="checkUserName" column="checkusername" />
+		<result property="checkDate" column="checkdate" />
+		<result property="checkDesc" column="checkdesc" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectRoster" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="pid != null">pid,</if>
+			<if test="rosterNo != null">rosterno,</if>
+			<if test="applyUserId != null">applyuserid,</if>
+			<if test="memo != null">memo,</if>
+			<if test="status != null">status</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="pid != null">#{pid},</if>
+			<if test="rosterNo != null">#{rosterNo},</if>
+			<if test="applyUserId != null">#{applyUserId},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="status != null">#{status}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.pid},#{item.rosterNo},#{item.reportDate},#{item.applyUserId},#{item.memo},#{item.checkUserId},#{item.checkDate},#{item.checkDesc},#{item.status})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectRoster">
+		select <include refid="listcolumns" /> from <include refid="table" /> o
+		LEFT JOIN sys_user s on o.applyuserid=s.id
+		LEFT JOIN sys_user ss on o.checkuserid=ss.id
+		where
+		o.id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectRoster" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!--根据项目id改变状态-->
+	<update id="updateStatus">
+		update <include refid="table" /> set status=#{status} 
+		<where>
+			id = #{id} 
+		</where>
+	</update>
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectRoster">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			checkuserid = #{checkUserId},
+			checkdate = #{checkDate},
+			checkdesc = #{checkDesc},
+			status = #{status},
+			memo = #{memo}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- updateReport单条更新:version+1 实现乐观锁 -->
+	<update id="updateReport" parameterType="ProjectRoster">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			reportdate = #{reportDate},
+			status = #{status}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	
+	<!-- updateCheck单条更新:version+1 实现乐观锁 -->
+	<update id="updateCheck" parameterType="ProjectRoster">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			checkuserid = #{checkUserId},
+			checkdate = #{checkDate},
+			checkdesc = #{checkDesc},
+			status = #{status}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN sys_user s on o.applyuserid=s.id
+		LEFT JOIN sys_user ss on o.checkuserid=ss.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="pid != null and pid !=''"> 
+				 and pid=#{pid}
+			</if>
+			<if test="rosterNo != null and rosterNo !=''"> 
+				<if test="rosterNoLike == false"> and o.rosterno=#{rosterNo}</if>
+				<if test="rosterNoLike == true"> and o.rosterno like  CONCAT('%',#{rosterNo},'%')</if>
+			</if>
+			<if test="reportDate != null and reportDate !=''"> 
+				<if test="reportDateLike == false"> and o.reportdate=#{reportDate}</if>
+				<if test="reportDateLike == true"> and o.reportdate like  CONCAT('%',#{reportDate},'%')</if>
+			</if>
+			<if test="applyUserId != null and applyUserId !=''"> 
+				<if test="applyUserIdLike == false"> and o.applyuserid=#{applyUserId}</if>
+				<if test="applyUserIdLike == true"> and o.applyuserid like  CONCAT('%',#{applyUserId},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and o.memo=#{memo}</if>
+				<if test="memoLike == true"> and o.memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="checkUserId != null and checkUserId !=''"> 
+				<if test="checkUserIdLike == false"> and o.checkuserid=#{checkUserId}</if>
+				<if test="checkUserIdLike == true"> and o.checkuserid like  CONCAT('%',#{checkUserId},'%')</if>
+			</if>
+			<if test="checkDate != null and checkDate !=''"> 
+				<if test="checkDateLike == false"> and o.checkdate=#{checkDate}</if>
+				<if test="checkDateLike == true"> and o.checkdate like  CONCAT('%',#{checkDate},'%')</if>
+			</if>
+			<if test="checkDesc != null and checkDesc !=''"> 
+				<if test="checkDescLike == false"> and o.checkdesc=#{checkDesc}</if>
+				<if test="checkDescLike == true"> and o.checkdesc like  CONCAT('%',#{checkDesc},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				 and o.status=#{status}
+			</if>
+			<if test="statusIds != null"> 
+				 and o.status in 
+				 <foreach collection="statusIds" separator="," item="statusId" open="(" close=")">
+					#{statusId}
+				</foreach>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectRosterQuery" resultMap="projectRoster">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectRosterQuery" resultMap="projectRoster">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectRosterQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<select id="nextSequenceVal" resultType="long">
+		SELECT  FUN_SEQ('ROSTER_NO_SEQ')
+	</select>
+	
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--总条数-->
+	<select id="countTeacherNum" resultType="long">
+		select count(1) from t_project_roster_detail where rosterid=#{rosterId}
+	</select>
+	
+	<!--一个项目，一个省市县校只有一条申请记录-->
+	<select id="selectOneRoster" resultMap="projectRoster">
+	SELECT
+		r.*
+	FROM
+		t_project_roster r
+	LEFT JOIN sys_user u ON r.applyuserid = u.id
+	WHERE
+		r.pid = #{pid}
+	AND u.province = #{province}
+	AND u.city = #{city}
+	AND u.town = #{town}
+	AND u.school = #{school}
+	</select>
+</mapper>

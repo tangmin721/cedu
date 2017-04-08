@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- 连接池配置 -->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- 最大连接数 -->
+		<property name="maxTotal" value="300" />
+		<!-- 最大空闲连接数 -->
+		<property name="maxIdle" value="100" />
+		<!-- 每次释放连接的最大数目 -->
+		<property name="numTestsPerEvictionRun" value="1024" />
+		<!-- 释放连接的扫描间隔（毫秒） -->
+		<property name="timeBetweenEvictionRunsMillis" value="30000" />
+		<!-- 连接最小空闲时间 -->
+		<property name="minEvictableIdleTimeMillis" value="1800000" />
+		<!-- 连接空闲多久后释放, 当空闲时间>该值 且 空闲连接>最大空闲连接数 时直接释放 -->
+		<property name="softMinEvictableIdleTimeMillis" value="10000" />
+		<!-- 获取连接时的最大等待毫秒数,小于零:阻塞不确定的时间,默认-1 -->
+		<property name="maxWaitMillis" value="1500" />
+		<!-- 在获取连接的时候检查有效性, 默认false -->
+		<property name="testOnBorrow" value="true" />
+		<!-- 在空闲时检查有效性, 默认false -->
+		<property name="testWhileIdle" value="true" />
+		<!-- 连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true -->
+		<property name="blockWhenExhausted" value="false" />
+	</bean>
+	
+	<!-- redis单机 通过连接池 -->
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool" destroy-method="close">
+		<constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+		<constructor-arg name="host" value="${redis.single.ip}"/>
+		<constructor-arg name="port" value="${redis.single.port}"/>
+	</bean>
+	
+	<!-- redis集群版配置 -->
+	<bean id="jedisCluster" class="redis.clients.jedis.JedisCluster" destroy-method="close">
+		<constructor-arg name="nodes">
+			<set>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg name="host" value="${redis.cluster1.ip}"/>
+					<constructor-arg name="port" value="${redis.cluster1.port}"/>
+				</bean>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg name="host" value="${redis.cluster2.ip}"/>
+					<constructor-arg name="port" value="${redis.cluster2.port}"/>
+				</bean>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg name="host" value="${redis.cluster3.ip}"/>
+					<constructor-arg name="port" value="${redis.cluster3.port}"/>
+				</bean>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg name="host" value="${redis.cluster4.ip}"/>
+					<constructor-arg name="port" value="${redis.cluster4.port}"/>
+				</bean>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg name="host" value="${redis.cluster5.ip}"/>
+					<constructor-arg name="port" value="${redis.cluster5.port}"/>
+				</bean>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg name="host" value="${redis.cluster6.ip}"/>
+					<constructor-arg name="port" value="${redis.cluster6.port}"/>
+				</bean>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+	</bean>
+	
+	<!-- 自己封装单机的service （使用单机或集群版，只放开一个）-->
+	<bean id="jedisClient" class="com.yanxiu.ce.common.redis.impl.JedisClientSingle"></bean>
+	<!-- 自己封装集群的service （使用单机或集群版，只放开一个）
+	<bean id="jedisClient" class="com.yanxiu.ce.common.redis.impl.JedisClientCluster"></bean>-->
+	
+	
+</beans>

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherMoveRecodeDao">
+	
+	<sql id="table"> t_teacher_move </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,movestatus,senddate,sendmemo,takedate,takememo,province,city,town,school,tprovince,tcity,ttown,tschool </sql>
+
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> o.*,p.provincename,c.cityname,town.townname,s.name as schoolname,
+ 							tp.provincename as tprovincename,tc.cityname as tcityname,ttown.townname as ttownname,ts.name as tschoolname,
+ 							t.type,t.name,t.tno,t.idcard </sql>
+	
+	<resultMap id="teacherMoveRecode" type="TeacherMoveRecode">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="moveStatus" column="movestatus" />
+		<result property="sendDate" column="senddate" />
+		<result property="sendMemo" column="sendmemo" />
+		<result property="takeDate" column="takedate" />
+		<result property="takeMemo" column="takememo" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="tprovince" column="tprovince" />
+		<result property="tcity" column="tcity" />
+		<result property="ttown" column="ttown" />
+		<result property="tschool" column="tschool" />
+
+		<result property="provinceName" column="provincename" />
+		<result property="cityName" column="cityname" />
+		<result property="townName" column="townname" />
+		<result property="schoolName" column="schoolname" />
+
+		<result property="tprovinceName" column="tprovincename" />
+		<result property="tcityName" column="tcityname" />
+		<result property="ttownName" column="ttownname" />
+		<result property="tschoolName" column="tschoolname" />
+
+		<result property="type" column="type" />
+		<result property="name" column="name" />
+		<result property="tno" column="tno" />
+		<result property="idCard" column="idcard" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherMoveRecode" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="moveStatus != null">movestatus,</if>
+			<if test="sendDate != null">senddate,</if>
+			<if test="sendMemo != null">sendmemo,</if>
+			<if test="takeDate != null">takedate,</if>
+			<if test="takeMemo != null">takememo,</if>
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="tprovince != null">tprovince,</if>
+			<if test="tcity != null">tcity,</if>
+			<if test="ttown != null">ttown,</if>
+			<if test="tschool != null">tschool</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="moveStatus != null">#{moveStatus},</if>
+			<if test="sendDate != null">#{sendDate},</if>
+			<if test="sendMemo != null">#{sendMemo},</if>
+			<if test="takeDate != null">#{takeDate},</if>
+			<if test="takeMemo != null">#{takeMemo},</if>
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="tprovince != null">#{tprovince},</if>
+			<if test="tcity != null">#{tcity},</if>
+			<if test="ttown != null">#{ttown},</if>
+			<if test="tschool != null">#{tschool}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.moveStatus},#{item.sendDate},#{item.sendMemo},#{item.takeDate},#{item.takeMemo},#{item.province},#{item.city},#{item.town},#{item.school},#{item.tprovince},#{item.tcity},#{item.ttown},#{item.tschool})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherMoveRecode">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherMoveRecode" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherMoveRecode">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			movestatus = #{moveStatus},
+			senddate = #{sendDate},
+			sendmemo = #{sendMemo},
+			takedate = #{takeDate},
+			takememo = #{takeMemo},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			tprovince = #{tprovince},
+			tcity = #{tcity},
+			ttown = #{ttown},
+			tschool = #{tschool}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		left join t_teacher t on t.id = o.tid
+		LEFT JOIN t_school s ON o.school=s.id
+		left join sys_area_province p on o.province=p.provinceno
+		left join sys_area_city c on o.city=c.cityno
+		left join sys_area_town town on o.town=town.townno
+
+		LEFT JOIN t_school ts ON o.tschool=ts.id
+		left join sys_area_province tp on o.tprovince=tp.provinceno
+		left join sys_area_city tc on o.tcity=tc.cityno
+		left join sys_area_town ttown on o.ttown=ttown.townno
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="moveStatus != null and moveStatus !=''"> and o.movestatus=#{moveStatus}</if>
+			<if test="name != null and name !=''">
+				<if test="nameLike == false"> and t.name=#{name}</if>
+				<if test="nameLike == true"> and t.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''">
+				<if test="idCardLike == false"> and t.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and t.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''">
+				<if test="tnoLike == false"> and t.tno=#{tno}</if>
+				<if test="tnoLike == true"> and t.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''">
+				 and t.type =#{type}
+			</if>
+		</where>
+	</sql>
+
+	<!--片段list条件判断-->
+	<sql id="selectorInWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and tprovince !='' and tprovince !=0"> and o.tprovince=#{tprovince}</if>
+			<if test="tcity != null and tcity !='' and tcity !=0"> and o.tcity=#{tcity}</if>
+			<if test="ttown != null and ttown !='' and ttown !=0"> and o.ttown=#{ttown}</if>
+			<if test="tschool != null and tschool !='' and tschool !=0"> and o.tschool=#{tschool}</if>
+			<if test="moveStatus != null and moveStatus !=''"> and o.movestatus=#{moveStatus}</if>
+			<if test="name != null and name !=''">
+				<if test="nameLike == false"> and t.name=#{name}</if>
+				<if test="nameLike == true"> and t.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''">
+				<if test="idCardLike == false"> and t.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and t.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''">
+				<if test="tnoLike == false"> and t.tno=#{tno}</if>
+				<if test="tnoLike == true"> and t.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''">
+				and t.type =#{type}
+			</if>
+		</where>
+	</sql>
+
+
+	<!--片段list条件判断-->
+	<sql id="selectorAllWhere">
+		<where>
+			((
+				o.province=#{province}
+				<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+				<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+				<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			)
+			OR
+			(
+				o.tprovince=#{tprovince}
+				<if test="tcity != null and tcity !='' and tcity !=0"> and o.tcity=#{tcity}</if>
+				<if test="ttown != null and ttown !='' and ttown !=0"> and o.ttown=#{ttown}</if>
+				<if test="tschool != null and tschool !='' and tschool !=0"> and o.tschool=#{tschool}</if>
+			))
+			<if test="moveStatus != null and moveStatus !=''"> and o.movestatus=#{moveStatus}</if>
+			<if test="name != null and name !=''">
+				<if test="nameLike == false"> and t.name=#{name}</if>
+				<if test="nameLike == true"> and t.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''">
+				<if test="idCardLike == false"> and t.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and t.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''">
+				<if test="tnoLike == false"> and t.tno=#{tno}</if>
+				<if test="tnoLike == true"> and t.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''">
+				and t.type =#{type}
+			</if>
+		</where>
+	</sql>
+
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherMoveRecodeQuery" resultMap="teacherMoveRecode">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!--out 分页 -->
+	<select id="selectListPage" parameterType="TeacherMoveRecodeQuery" resultMap="teacherMoveRecode">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+
+	<!--in 分页 -->
+	<select id="selectInListPage" parameterType="TeacherMoveRecodeQuery" resultMap="teacherMoveRecode">
+		<include refid="selectorFields" />
+		<include refid="selectorInWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+
+	<!--all 分页 -->
+	<select id="selectAllListPage" parameterType="TeacherMoveRecodeQuery" resultMap="teacherMoveRecode">
+		<include refid="selectorFields" />
+		<include refid="selectorAllWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--out总条数-->
+	<select id="selectListTotal" parameterType="TeacherMoveRecodeQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		left join t_teacher t on t.id = o.tid
+		<include refid="selectorWhere" />
+	</select>
+
+	<!--in总条数-->
+	<select id="selectInListTotal" parameterType="TeacherMoveRecodeQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		left join t_teacher t on t.id = o.tid
+		<include refid="selectorInWhere" />
+	</select>
+
+	<!--all总条数-->
+	<select id="selectAllListTotal" parameterType="TeacherMoveRecodeQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		left join t_teacher t on t.id = o.tid
+		<include refid="selectorAllWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

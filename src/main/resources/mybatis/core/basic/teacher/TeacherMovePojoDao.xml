@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherMovePojoDao">
+	
+	<sql id="table"> t_teacher </sql>
+
+	<sql id="listcolumns">  o.id,o.name,o.birthday,o.idcard,o.tno,o.type,o.movestatus,o.province,o.city,o.town,o.school,p.provincename,c.cityname,t.townname,s.name as schoolname,i.name as genderName  </sql>
+	
+	<resultMap id="teacherMovePojo" type="TeacherMovePojo">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="name" column="name" />
+		<result property="birthday" column="birthday" />
+		<result property="idCard" column="idcard" />
+		<result property="tno" column="tno" />
+		<result property="type" column="type" />
+		<result property="moveStatus" column="movestatus" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+	</resultMap>
+
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="name != null and name !=''">
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''">
+				<if test="idCardLike == false"> and o.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and o.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''"> 
+				<if test="tnoLike == false"> and o.tno=#{tno}</if>
+				<if test="tnoLike == true"> and o.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> 
+				<if test="typeLike == false"> and o.type=#{type}</if>
+				<if test="typeLike == true"> and o.type like  CONCAT('%',#{type},'%')</if>
+			</if>
+			<if test="moveStatus != null and moveStatus !=''"> and o.movestatus=1</if>
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherMovePojoQuery" resultMap="teacherMovePojo">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+		LEFT JOIN t_school s ON o.school = s.id
+		LEFT JOIN sys_area_province p ON o.province = p.provinceno
+		LEFT JOIN sys_area_city c ON o.city = c.cityno
+		LEFT JOIN sys_area_town t ON o.town = t.townno
+		LEFT JOIN sys_dict_item i ON o.gender = i.id
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherMovePojoQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+
+	<update id="updateMoveStatus">
+		update t_teacher set movestatus=#{moveStatus} where id=#{tid}
+	</update>
+
+	<update id="updatePcts">
+		update t_teacher set province=#{province},city=#{city},town=#{town},school=#{school} where id=#{tid}
+	</update>
+	
+
+</mapper>

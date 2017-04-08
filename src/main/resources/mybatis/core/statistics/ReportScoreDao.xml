@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.statistics.dao.ReportScoreDao">
+	
+	<sql id="table"> r_score </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,school,way,title,data </sql>
+	
+	<resultMap id="reportScore" type="ReportScore">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="way" column="way" />
+		<result property="title" column="title" />
+		<result property="data" column="data" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ReportScore" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="way != null">way,</if>
+			<if test="title != null">title,</if>
+			<if test="data != null">data</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="way != null">#{way},</if>
+			<if test="title != null">#{title},</if>
+			<if test="data != null">#{data}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.province},#{item.city},#{item.town},#{item.school},#{item.way},#{item.title},#{item.data})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="reportScore">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="reportScore" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ReportScore">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			way = #{way},
+			title = #{title},
+			data = #{data}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="province != null and province !=''"> 
+				<if test="provinceLike == false"> and province=#{province}</if>
+				<if test="provinceLike == true"> and province like  CONCAT('%',#{province},'%')</if>
+			</if>
+			<if test="city != null and city !=''"> 
+				<if test="cityLike == false"> and city=#{city}</if>
+				<if test="cityLike == true"> and city like  CONCAT('%',#{city},'%')</if>
+			</if>
+			<if test="town != null and town !=''"> 
+				<if test="townLike == false"> and town=#{town}</if>
+				<if test="townLike == true"> and town like  CONCAT('%',#{town},'%')</if>
+			</if>
+			<if test="school != null and school !=''"> 
+				<if test="schoolLike == false"> and school=#{school}</if>
+				<if test="schoolLike == true"> and school like  CONCAT('%',#{school},'%')</if>
+			</if>
+			<if test="way != null and way !=''"> 
+				<if test="wayLike == false"> and way=#{way}</if>
+				<if test="wayLike == true"> and way like  CONCAT('%',#{way},'%')</if>
+			</if>
+			<if test="title != null and title !=''"> 
+				<if test="titleLike == false"> and title=#{title}</if>
+				<if test="titleLike == true"> and title like  CONCAT('%',#{title},'%')</if>
+			</if>
+			<if test="data != null and data !=''"> 
+				<if test="dataLike == false"> and data=#{data}</if>
+				<if test="dataLike == true"> and data like  CONCAT('%',#{data},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ReportScoreQuery" resultMap="reportScore">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ReportScoreQuery" resultMap="reportScore">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ReportScoreQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--///////////////////////////////汇总已获学时start/////////////////////////-->
+	
+	<!--#0 \查询出没有同步的tid 总数  用于批处理-->
+	<select id="countUnsyncTids" resultType="int">
+		select count(DISTINCT(t.TID)) as total from t_score t where t.`STATUS`=40 and t.syncflag=0
+	</select>
+	<!--#1\查询出没有同步的tid集合-->
+	<select id="selectUnsyncTids" resultType="long">
+		select DISTINCT(t.TID) from t_score t where t.`STATUS`=40 and t.syncflag=0 LIMIT 0,#{size}
+	</select>
+	
+	<!--#2统计 tid的总学分-->
+	<select id="sumScoreByTid" resultType="int">
+		select sum(score) as score from t_score t where t.`STATUS`=40 and tid=#{tid}
+	</select>
+	
+	<!--#3更新 t_teacher 的总学分-->
+	<update id="updateTotalScore">
+		UPDATE t_teacher set TOTALSCORE = #{totalScore} where id = #{tid}
+	</update>
+	<update id="updateTotalScoreNum">
+		UPDATE t_teacher set TOTALSCORENUM = #{totalScoreNum} where id = #{tid}
+	</update>
+	
+	<!--#4更新同步flag-->
+	<update id="updateSyncFlag">
+		UPDATE t_score set syncflag=1 where `STATUS`=40 and tid=#{tid}
+	</update>
+	<!--///////////////////////////////汇总已获学时end/////////////////////////-->
+	
+	<!--/////////////////////////////////////////////1、学历统计(所有根据数据字典，包括学科、学段) start////////////////////////////////////-->
+	<select id="groupByProperty" resultType="nameValue">
+			SELECT
+				i. ${iname} AS NAME,
+				count(1) AS
+			VALUE
+			
+			FROM
+				(
+					SELECT
+						o.province,
+						o.city,
+						o.town,
+						o.school,
+						<!--o.BONETYPE,o.STAGE,o.COURSE,o.DEGREE,o.TITLE,o.DUTY,o.GRADE,o.nation,-->
+						t.score,
+						t.CHECKDATE,
+						t.tid,
+						sum(t.SCORE) AS sumscore
+					FROM
+						t_score t
+					LEFT JOIN t_teacher o ON t.TID = o.id
+				  <where>
+						<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+						<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+						<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+						<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+						<if test="startDate != null and startDate !='' "> and t.CHECKDATE  <![CDATA[   >=  ]]> #{startDate}</if>
+						<if test="endDate != null and endDate !='' "> and t.CHECKDATE <![CDATA[   <  ]]> #{endDate}</if>
+						and t.`STATUS`=40
+					</where>
+					GROUP BY
+						t.TID
+					HAVING 
+						1=1
+						<if test="startScore != null and startScore !='' "> and sumscore <![CDATA[   >  ]]> #{startScore} </if>
+						<if test="endScore != null and endScore !='' "> and sumscore <![CDATA[   <=  ]]> #{endScore}  </if>
+				) tmp
+			LEFT JOIN ${tableName} i ON i.${joinOnName} = tmp.${property}
+			GROUP BY
+			tmp.${property}
+	</select>
+	<!--/////////////////////////////////////////////1、学历统计 end////////////////////////////////////-->
+	
+	
+</mapper>

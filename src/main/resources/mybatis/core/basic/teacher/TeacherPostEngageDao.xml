@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherPostEngageDao">
+	
+	<sql id="table"> t_tch_post_engage </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,posttype,postlevel,startdate,parttimeflag,parttimetype,parttimelevel,duty,dutystartdate,seq </sql>
+	
+	<resultMap id="teacherPostEngage" type="TeacherPostEngage">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="postType" column="posttype" />
+		<result property="postLevel" column="postlevel" />
+		<result property="startDate" column="startdate" />
+		<result property="parttimeFlag" column="parttimeflag" />
+		<result property="parttimeType" column="parttimetype" />
+		<result property="parttimeLevel" column="parttimelevel" />
+		<result property="duty" column="duty" />
+		<result property="dutyStartDate" column="dutystartdate" />
+		<result property="seq" column="seq" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherPostEngage" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="postType != null">posttype,</if>
+			<if test="postLevel != null">postlevel,</if>
+			<if test="startDate != null">startdate,</if>
+			<if test="parttimeFlag != null">parttimeflag,</if>
+			<if test="parttimeType != null">parttimetype,</if>
+			<if test="parttimeLevel != null">parttimelevel,</if>
+			<if test="duty != null">duty,</if>
+			<if test="dutyStartDate != null">dutystartdate,</if>
+			<if test="seq != null">seq</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="postType != null">#{postType},</if>
+			<if test="postLevel != null">#{postLevel},</if>
+			<if test="startDate != null">#{startDate},</if>
+			<if test="parttimeFlag != null">#{parttimeFlag},</if>
+			<if test="parttimeType != null">#{parttimeType},</if>
+			<if test="parttimeLevel != null">#{parttimeLevel},</if>
+			<if test="duty != null">#{duty},</if>
+			<if test="dutyStartDate != null">#{dutyStartDate},</if>
+			<if test="seq != null">#{seq}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.postType},#{item.postLevel},#{item.startDate},#{item.parttimeFlag},#{item.parttimeType},#{item.parttimeLevel},#{item.duty},#{item.dutyStartDate},#{item.seq})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherPostEngage">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherPostEngage" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherPostEngage">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			tid = #{tid},
+			posttype = #{postType},
+			postlevel = #{postLevel},
+			startdate = #{startDate},
+			parttimeflag = #{parttimeFlag},
+			parttimetype = #{parttimeType},
+			parttimelevel = #{parttimeLevel},
+			duty = #{duty},
+			dutystartdate = #{dutyStartDate},
+			seq = #{seq}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and o.tid=#{tid}</if>
+				<if test="tidLike == true"> and o.tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="postType != null and postType !=''"> 
+				<if test="postTypeLike == false"> and o.posttype=#{postType}</if>
+				<if test="postTypeLike == true"> and o.posttype like  CONCAT('%',#{postType},'%')</if>
+			</if>
+			<if test="postLevel != null and postLevel !=''"> 
+				<if test="postLevelLike == false"> and o.postlevel=#{postLevel}</if>
+				<if test="postLevelLike == true"> and o.postlevel like  CONCAT('%',#{postLevel},'%')</if>
+			</if>
+			<if test="startDate != null and startDate !=''"> 
+				<if test="startDateLike == false"> and o.startdate=#{startDate}</if>
+				<if test="startDateLike == true"> and o.startdate like  CONCAT('%',#{startDate},'%')</if>
+			</if>
+			<if test="parttimeFlag != null and parttimeFlag !=''"> 
+				<if test="parttimeFlagLike == false"> and o.parttimeflag=#{parttimeFlag}</if>
+				<if test="parttimeFlagLike == true"> and o.parttimeflag like  CONCAT('%',#{parttimeFlag},'%')</if>
+			</if>
+			<if test="parttimeType != null and parttimeType !=''"> 
+				<if test="parttimeTypeLike == false"> and o.parttimetype=#{parttimeType}</if>
+				<if test="parttimeTypeLike == true"> and o.parttimetype like  CONCAT('%',#{parttimeType},'%')</if>
+			</if>
+			<if test="parttimeLevel != null and parttimeLevel !=''"> 
+				<if test="parttimeLevelLike == false"> and o.parttimelevel=#{parttimeLevel}</if>
+				<if test="parttimeLevelLike == true"> and o.parttimelevel like  CONCAT('%',#{parttimeLevel},'%')</if>
+			</if>
+			<if test="duty != null and duty !=''"> 
+				<if test="dutyLike == false"> and o.duty=#{duty}</if>
+				<if test="dutyLike == true"> and o.duty like  CONCAT('%',#{duty},'%')</if>
+			</if>
+			<if test="dutyStartDate != null and dutyStartDate !=''"> 
+				<if test="dutyStartDateLike == false"> and o.dutystartdate=#{dutyStartDate}</if>
+				<if test="dutyStartDateLike == true"> and o.dutystartdate like  CONCAT('%',#{dutyStartDate},'%')</if>
+			</if>
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherPostEngageQuery" resultMap="teacherPostEngage">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TeacherPostEngageQuery" resultMap="teacherPostEngage">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherPostEngageQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid = #{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+</mapper>

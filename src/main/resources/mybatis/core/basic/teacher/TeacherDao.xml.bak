@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherDao">
+	
+	<sql id="table"> t_teacher </sql>
+	<sql id="columns"> id,version,createtime,deleted,name,sex,birthday,path,nation,idcard,tno,type,tel,mobile,email,province,city,town,school,persontype,duty,title,qualify,bonetype,joblevel,politic,joinday,degree,major,univ,teachedday,workedday,stage,course,grade,jobstatus,marry,memo,headteacher,joincadresday </sql>
+	
+	<!--仅供用于查询列表显示省市县名称-->
+	<sql id="listcolumns"> o.*,p.provincename,c.cityname,t.townname,s.name as schoolname </sql>
+	
+	<!-- 仅供用于excel表格导出使用  -->
+	<sql id="listcolumnsExcel"> o.*,p.provincename,c.cityname,t.townname,s.name as schoolname,i.name as nationname,i1.name as personTypeName,i2.name as dutyName,i3.name as titleName,i4.name as qualifyName,i5.name as boneTypeName,i6.name as jobLevelName,i7.name as politicName,i8.name as degreeName,i9.name as jobStatusName,i10.name as stageName,i11.name as courseName,i12.name as gradeName </sql>
+	
+	<resultMap id="teacher" type="Teacher">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="name" column="name" />
+		<result property="sex" column="sex" />
+		<result property="birthday" column="birthday" />
+		<result property="path" column="path" />
+		<result property="nation" column="nation" />
+		<result property="nationName" column="nationname" />
+		<result property="idCard" column="idcard" />
+		<result property="tno" column="tno" />
+		<result property="type" column="type" />
+		<result property="tel" column="tel" />
+		<result property="mobile" column="mobile" />
+		<result property="email" column="email" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="provinceName" column="provincename" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityname" />
+		<result property="townName" column="townname" />
+		<result property="schoolName" column="schoolname" />
+		<result property="personType" column="persontype" />
+		<result property="duty" column="duty" />
+		<result property="title" column="title" />
+		<result property="qualify" column="qualify" />
+		<result property="boneType" column="bonetype" />
+		<result property="jobLevel" column="joblevel" />
+		<result property="politic" column="politic" />
+		<result property="joinDay" column="joinday" />
+		<result property="degree" column="degree" />
+		<result property="major" column="major" />
+		<result property="univ" column="univ" />
+		<result property="teachedDay" column="teachedday" />
+		<result property="workedDay" column="workedday" />
+		<result property="stage" column="stage" />
+		<result property="course" column="course" />
+		<result property="grade" column="grade" />
+		<result property="jobStatus" column="jobstatus" />
+		<result property="marry" column="marry" />
+		<result property="memo" column="memo" />
+		<result property="headTeacher" column="headteacher" />
+		<result property="joinCadresDay" column="joincadresday" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="Teacher" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="name != null">name,</if>
+			<if test="sex != null">sex,</if>
+			<if test="birthday != null">birthday,</if>
+			<if test="path != null">path,</if>
+			<if test="nation != null">nation,</if>
+			<if test="idCard != null">idcard,</if>
+			<if test="tno != null">tno,</if>
+			<if test="type != null">type,</if>
+			<if test="tel != null">tel,</if>
+			<if test="mobile != null">mobile,</if>
+			<if test="email != null">email,</if>
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="personType != null">persontype,</if>
+			<if test="duty != null">duty,</if>
+			<if test="title != null">title,</if>
+			<if test="qualify != null">qualify,</if>
+			<if test="boneType != null">bonetype,</if>
+			<if test="jobLevel != null">joblevel,</if>
+			<if test="politic != null">politic,</if>
+			<if test="joinDay != null">joinday,</if>
+			<if test="degree != null">degree,</if>
+			<if test="major != null">major,</if>
+			<if test="univ != null">univ,</if>
+			<if test="teachedDay != null">teachedday,</if>
+			<if test="workedDay != null">workedday,</if>
+			<if test="stage != null">stage,</if>
+			<if test="course != null">course,</if>
+			<if test="grade != null">grade,</if>
+			<if test="jobStatus != null">jobstatus,</if>
+			<if test="marry != null">marry,</if>
+			<if test="memo != null">memo,</if>
+			<if test="headTeacher != null">headteacher,</if>
+			<if test="joinCadresDay != null">joincadresday</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="name != null">#{name},</if>
+			<if test="sex != null">#{sex},</if>
+			<if test="birthday != null">#{birthday},</if>
+			<if test="path != null">#{path},</if>
+			<if test="nation != null">#{nation},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="tno != null">#{tno},</if>
+			<if test="type != null">#{type},</if>
+			<if test="tel != null">#{tel},</if>
+			<if test="mobile != null">#{mobile},</if>
+			<if test="email != null">#{email},</if>
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="personType != null">#{personType},</if>
+			<if test="duty != null">#{duty},</if>
+			<if test="title != null">#{title},</if>
+			<if test="qualify != null">#{qualify},</if>
+			<if test="boneType != null">#{boneType},</if>
+			<if test="jobLevel != null">#{jobLevel},</if>
+			<if test="politic != null">#{politic},</if>
+			<if test="joinDay != null">#{joinDay},</if>
+			<if test="degree != null">#{degree},</if>
+			<if test="major != null">#{major},</if>
+			<if test="univ != null">#{univ},</if>
+			<if test="teachedDay != null">#{teachedDay},</if>
+			<if test="workedDay != null">#{workedDay},</if>
+			<if test="stage != null">#{stage},</if>
+			<if test="course != null">#{course},</if>
+			<if test="grade != null">#{grade},</if>
+			<if test="jobStatus != null">#{jobStatus},</if>
+			<if test="marry != null">#{marry},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="headTeacher != null">#{headTeacher},</if>
+			<if test="joinCadresDay != null">#{joinCadresDay}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.name},#{item.sex},#{item.birthday},#{item.path},#{item.nation},#{item.idCard},#{item.tno},#{item.type},#{item.tel},#{item.mobile},#{item.email},#{item.province},#{item.city},#{item.town},#{item.school},#{item.personType},#{item.duty},#{item.title},#{item.qualify},#{item.boneType},#{item.jobLevel},#{item.politic},#{item.joinDay},#{item.degree},#{item.major},#{item.univ},#{item.teachedDay},#{item.workedDay},#{item.stage},#{item.course},#{item.grade},#{item.jobStatus},#{item.marry},#{item.memo},#{item.headTeacher},#{item.joinCadresDay})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacher">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacher" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="Teacher">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			name = #{name},
+			sex = #{sex},
+			birthday = #{birthday},
+			path = #{path},
+			nation = #{nation},
+			idcard = #{idCard},
+			type = #{type},
+			tel = #{tel},
+			mobile = #{mobile},
+			email = #{email},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			persontype = #{personType},
+			duty = #{duty},
+			title = #{title},
+			qualify = #{qualify},
+			bonetype = #{boneType},
+			joblevel = #{jobLevel},
+			politic = #{politic},
+			joinday = #{joinDay},
+			degree = #{degree},
+			major = #{major},
+			univ = #{univ},
+			teachedday = #{teachedDay},
+			workedday = #{workedDay},
+			stage = #{stage},
+			course = #{course},
+			grade = #{grade},
+			jobstatus = #{jobStatus},
+			marry = #{marry},
+			memo = #{memo},
+			headteacher = #{headTeacher},
+			joincadresday = #{joinCadresDay}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据shool批量修改教师的省市县 -->
+	<update id="updateBatchSchool" parameterType="Teacher">
+		update
+		<include refid="table" />
+		<set>
+			province = #{province},
+			city = #{city},
+			town = #{town}
+		</set>
+		<where>
+			school = #{school} 
+		</where>
+	</update>
+	
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供用于excel表格导出使用-->
+	<sql id="selectorExcelFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumnsExcel" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+	 	left join sys_dict_item i on o.nation=i.id
+	 	left join sys_dict_item i1 on o.personType=i1.id
+	 	left join sys_dict_item i2 on o.duty=i2.id
+	 	left join sys_dict_item i3 on o.title=i3.id
+	 	left join sys_dict_item i4 on o.qualify=i4.id
+	 	left join sys_dict_item i5 on o.boneType=i5.id
+	 	left join sys_dict_item i6 on o.jobLevel=i6.id
+	 	left join sys_dict_item i7 on o.politic=i7.id
+	 	left join sys_dict_item i8 on o.degree=i8.id
+	 	left join sys_dict_item i9 on o.jobStatus=i9.id
+	 	left join t_conf_stage i10 on o.stage=i10.id
+	 	left join t_conf_course i11 on o.course=i11.id
+	 	left join t_conf_grade i12 on o.grade=i12.id
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="sex != null and sex !=''"> and o.sex like  CONCAT('%',#{sex},'%')</if>
+			<if test="nation != null and nation !=''"> and o.nation=#{nation}</if>
+		
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and o.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and o.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''"> 
+				<if test="tnoLike == false"> and o.tno=#{tno}</if>
+				<if test="tnoLike == true"> and o.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''">  and o.type=#{type} </if>
+			<if test="tel != null and tel !=''"> 
+				<if test="telLike == false"> and o.tel=#{tel}</if>
+				<if test="telLike == true"> and o.tel like  CONCAT('%',#{tel},'%')</if>
+			</if>
+			<if test="mobile != null and mobile !=''"> 
+				<if test="mobileLike == false"> and o.mobile=#{mobile}</if>
+				<if test="mobileLike == true"> and o.mobile like  CONCAT('%',#{mobile},'%')</if>
+			</if>
+			<if test="email != null and email !=''"> 
+				<if test="emailLike == false"> and o.email=#{email}</if>
+				<if test="emailLike == true"> and o.email like  CONCAT('%',#{email},'%')</if>
+			</if>
+			
+			<if test="personType != null and personType !=''"> 
+				<if test="personTypeLike == false"> and o.persontype=#{personType}</if>
+				<if test="personTypeLike == true"> and o.persontype like  CONCAT('%',#{personType},'%')</if>
+			</if>
+			<if test="duty != null and duty !=''"> 
+				<if test="dutyLike == false"> and o.duty=#{duty}</if>
+				<if test="dutyLike == true"> and o.duty like  CONCAT('%',#{duty},'%')</if>
+			</if>
+			<if test="title != null and title !=''"> 
+				<if test="titleLike == false"> and o.title=#{title}</if>
+				<if test="titleLike == true"> and o.title like  CONCAT('%',#{title},'%')</if>
+			</if>
+			<if test="qualify != null and qualify !=''"> 
+				<if test="qualifyLike == false"> and o.qualify=#{qualify}</if>
+				<if test="qualifyLike == true"> and o.qualify like  CONCAT('%',#{qualify},'%')</if>
+			</if>
+			<if test="boneType != null and boneType !=''"> 
+				<if test="boneTypeLike == false"> and o.bonetype=#{boneType}</if>
+				<if test="boneTypeLike == true"> and o.bonetype like  CONCAT('%',#{boneType},'%')</if>
+			</if>
+			<if test="jobLevel != null and jobLevel !=''"> 
+				<if test="jobLevelLike == false"> and o.joblevel=#{jobLevel}</if>
+				<if test="jobLevelLike == true"> and o.joblevel like  CONCAT('%',#{jobLevel},'%')</if>
+			</if>
+			<if test="politic != null and politic !=''"> 
+				<if test="politicLike == false"> and o.politic=#{politic}</if>
+				<if test="politicLike == true"> and o.politic like  CONCAT('%',#{politic},'%')</if>
+			</if>
+			<if test="joinDay != null and joinDay !=''"> 
+				<if test="joinDayLike == false"> and o.joinday=#{joinDay}</if>
+				<if test="joinDayLike == true"> and o.joinday like  CONCAT('%',#{joinDay},'%')</if>
+			</if>
+			<if test="degree != null and degree !=''"> 
+				<if test="degreeLike == false"> and o.degree=#{degree}</if>
+				<if test="degreeLike == true"> and o.degree like  CONCAT('%',#{degree},'%')</if>
+			</if>
+			<if test="major != null and major !=''"> 
+				<if test="majorLike == false"> and o.major=#{major}</if>
+				<if test="majorLike == true"> and o.major like  CONCAT('%',#{major},'%')</if>
+			</if>
+			<if test="univ != null and univ !=''"> 
+				<if test="univLike == false"> and o.univ=#{univ}</if>
+				<if test="univLike == true"> and o.univ like  CONCAT('%',#{univ},'%')</if>
+			</if>
+			<if test="teachedDay != null and teachedDay !=''"> 
+				<if test="teachedDayLike == false"> and o.teachedday=#{teachedDay}</if>
+				<if test="teachedDayLike == true"> and o.teachedday like  CONCAT('%',#{teachedDay},'%')</if>
+			</if>
+			<if test="workedDay != null and workedDay !=''"> 
+				<if test="workedDayLike == false"> and o.workedday=#{workedDay}</if>
+				<if test="workedDayLike == true"> and o.workedday like  CONCAT('%',#{workedDay},'%')</if>
+			</if>
+			<if test="stage != null and stage !=''"> 
+				<if test="stageLike == false"> and o.stage=#{stage}</if>
+				<if test="stageLike == true"> and o.stage like  CONCAT('%',#{stage},'%')</if>
+			</if>
+			<if test="course != null and course !=''"> 
+				<if test="courseLike == false"> and o.course=#{course}</if>
+				<if test="courseLike == true"> and o.course like  CONCAT('%',#{course},'%')</if>
+			</if>
+			<if test="grade != null and grade !=''"> 
+				<if test="gradeLike == false"> and o.grade=#{grade}</if>
+				<if test="gradeLike == true"> and o.grade like  CONCAT('%',#{grade},'%')</if>
+			</if>
+			<if test="jobStatus != null and jobStatus !=''"> 
+				<if test="jobStatusLike == false"> and o.jobstatus=#{jobStatus}</if>
+				<if test="jobStatusLike == true"> and o.jobstatus like  CONCAT('%',#{jobStatus},'%')</if>
+			</if>
+			<if test="marry != null and marry !=''"> and o.marry=#{marry}</if>
+			<if test="memo != null and memo !=''">
+				<if test="memoLike == false"> and o.memo=#{memo}</if>
+				<if test="memoLike == true"> and o.memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="startBirthday != null"> and o.birthday <![CDATA[   >=  ]]>#{startBirthday} </if>
+			<if test="endBirthday != null"> and  o.birthday <![CDATA[   <  ]]> #{endBirthday}</if>
+			<if test="headTeacher != null and headTeacher !=''"> and o.headteacher like  CONCAT('%',#{headTeacher},'%')</if>
+			<if test="startJoinCadresDay != null"> and o.joincadresday <![CDATA[   >=  ]]>#{startJoinCadresDay} </if>
+			<if test="endJoinCadresDay != null"> and  o.joincadresday <![CDATA[   <  ]]> #{endJoinCadresDay}</if>
+			
+			<if test="startWorkedDay != null"> and o.workedday <![CDATA[   >=  ]]>#{startWorkedDay} </if>
+			<if test="endWorkedDay != null"> and  o.workedday <![CDATA[   <  ]]> #{endWorkedDay}</if>
+			<if test="startTeachedDay != null"> and o.teachedday <![CDATA[   >=  ]]>#{startTeachedDay} </if>
+			<if test="endTeachedDay != null"> and  o.teachedday <![CDATA[   <  ]]> #{endTeachedDay}</if>
+		</where>
+	</sql>
+	
+	
+	
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherQuery" resultMap="teacher">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页  优化后的  先limit 再 查-->
+	<select id="selectListPage" parameterType="TeacherQuery" resultMap="teacher">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  (
+			SELECT id,name,sex,birthday,province,city,town,STAGE,course,tno,title,joincadresday,duty,school from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+		LEFT JOIN t_school s ON o.school = s.id
+		LEFT JOIN sys_area_province p ON o.province = p.provinceno
+		LEFT JOIN sys_area_city c ON o.city = c.cityno
+		LEFT JOIN sys_area_town t ON o.town = t.townno
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取school编号序列-->
+	<select id="nextSequenceVal" resultType="long">
+		SELECT  FUN_SEQ('TEACHER_NO_SEQ')
+	</select>
+	
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验身份证是否存在-->
+	<select id="selectCheckIdCardExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="idCard != null and  idCard !=''"> and idcard=#{idCard}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+
+	<!--导出execl表格记录查询-->
+	<select id="selectExcelList" parameterType="TeacherQuery" resultMap="teacher">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumnsExcel" />
+		</if>
+		from  (
+			SELECT * from <include refid="table" /> o
+			<include refid="selectorWhere" />
+			<include refid="selectorOrder" />
+			<include refid="selectorLimit" />
+		) o
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+	 	left join sys_dict_item i on o.nation=i.id
+	 	left join sys_dict_item i1 on o.personType=i1.id
+	 	left join sys_dict_item i2 on o.duty=i2.id
+	 	left join sys_dict_item i3 on o.title=i3.id
+	 	left join sys_dict_item i4 on o.qualify=i4.id
+	 	left join sys_dict_item i5 on o.boneType=i5.id
+	 	left join sys_dict_item i6 on o.jobLevel=i6.id
+	 	left join sys_dict_item i7 on o.politic=i7.id
+	 	left join sys_dict_item i8 on o.degree=i8.id
+	 	left join sys_dict_item i9 on o.jobStatus=i9.id
+	 	left join t_conf_stage i10 on o.stage=i10.id
+	 	left join t_conf_course i11 on o.course=i11.id
+	 	left join t_conf_grade i12 on o.grade=i12.id
+	</select>
+</mapper>

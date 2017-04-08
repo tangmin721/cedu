@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.score.dao.ScoreTeacherDao">
+	
+	<resultMap id="scoreTeacher" type="ScoreTeacher">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="name" column="name" />
+		<result property="gender" column="gender" />
+		<result property="birthday" column="birthday" />
+		<result property="nation" column="nation" />
+		<result property="nationName" column="nationname" />
+		<result property="idCard" column="idcard" />
+		<result property="tno" column="tno" />
+		<result property="type" column="type" />
+		<result property="tel" column="tel" />
+		<result property="mobile" column="mobile" />
+		<result property="email" column="email" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="provinceName" column="provincename" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityname" />
+		<result property="townName" column="townname" />
+		<result property="schoolName" column="schoolname" />
+		<result property="personType" column="persontype" />
+		<result property="duty" column="duty" />
+		<result property="title" column="title" />
+		<result property="qualify" column="qualify" />
+		<result property="boneType" column="bonetype" />
+		<result property="jobLevel" column="joblevel" />
+		<result property="politic" column="politic" />
+		<result property="joinDay" column="joinday" />
+		<result property="degree" column="degree" />
+		<result property="major" column="major" />
+		<result property="univ" column="univ" />
+		<result property="teachedDay" column="teachedday" />
+		<result property="workedDay" column="workedday" />
+		<result property="stage" column="stage" />
+		<result property="course" column="course" />
+		<result property="grade" column="grade" />
+		<result property="jobStatus" column="jobstatus" />
+		<result property="memo" column="memo" />
+		<result property="headTeacher" column="headteacher" />
+		<result property="joinCadresDay" column="joincadresday" />
+		<result property="totalScore" column="totalscore" />
+		<result property="totalScoreNum" column="totalscorenum" />
+	</resultMap>
+	
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select o.*,p.provincename,c.cityname,t.townname,s.name as schoolname from t_score score 
+		LEFT JOIN t_teacher o on o.id=score.tid 
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0"> and o.province=#{province}</if>
+			<if test="city != null and city !='' and city !=0"> and o.city=#{city}</if>
+			<if test="town != null and town !='' and town !=0"> and o.town=#{town}</if>
+			<if test="school != null and school !='' and school !=0"> and o.school=#{school}</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="gender != null and gender !=''"> and o.gender like  CONCAT('%',#{gender},'%')</if>
+			<if test="nation != null and nation !=''"> and o.nation=#{nation}</if>
+		
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and o.idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and o.idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="tno != null and tno !=''"> 
+				<if test="tnoLike == false"> and o.tno=#{tno}</if>
+				<if test="tnoLike == true"> and o.tno like  CONCAT('%',#{tno},'%')</if>
+			</if>
+			<if test="type != null and type !=''">  and o.type=#{type} </if>
+			
+			<if test="startBirthday != null"> and o.birthday <![CDATA[   >=  ]]>#{startBirthday} </if>
+			<if test="endBirthday != null"> and  o.birthday <![CDATA[   <  ]]> #{endBirthday}</if>
+			<if test="startScore != null and startScore !=''"> and o.totalScore <![CDATA[   >=  ]]>#{startScore} </if>
+			<if test="endScore != null and endScore !=''"> and  o.totalScore <![CDATA[   <=  ]]> #{endScore}</if>
+			<if test="startCheckDay != null"> and score.checkdate <![CDATA[   >=  ]]>#{startCheckDay} </if>
+			<if test="endCheckDay != null"> and  score.checkdate <![CDATA[   <  ]]> #{endCheckDay}</if>
+			
+			and score.`STATUS`=40
+		</where>
+	</sql>
+	
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	
+	<!--分页 -->
+	<select id="selectListPage" parameterType="ScoreTeacherQuery" resultMap="scoreTeacher">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		GROUP BY score.TID
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--区县级 总条数-->
+	<select id="selectListTotal" parameterType="ScoreJoinQuery" resultType="long">
+		select count(1) from (select o.id from t_score score 
+		LEFT JOIN t_teacher o on o.id=score.tid
+		<include refid="selectorWhere" />
+		GROUP BY score.tid) tmp
+	</select>
+	
+</mapper>

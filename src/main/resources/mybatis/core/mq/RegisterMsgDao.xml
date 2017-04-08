@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.mq.dao.RegisterMsgDao">
+	
+	<sql id="table"> mq_register </sql>
+	<sql id="columns"> id,version,createtime,deleted,status,type,num,memo,producertime,consumertime,uid,password,passport,appkey,mobile,email,realname,idcard,schoolname,course,stage,grade,province,city,area,gender </sql>
+	
+	<resultMap id="registerMsg" type="RegisterMsg">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="status" column="status" />
+		<result property="type" column="type" />
+		<result property="num" column="num" />
+		<result property="memo" column="memo" />
+		<result property="producerTime" column="producertime" />
+		<result property="consumerTime" column="consumertime" />
+		<result property="uid" column="uid" />
+		<result property="password" column="password" />
+		<result property="passport" column="passport" />
+		<result property="appKey" column="appkey" />
+		<result property="mobile" column="mobile" />
+		<result property="email" column="email" />
+		<result property="realname" column="realname" />
+		<result property="idCard" column="idcard" />
+		<result property="schoolName" column="schoolname" />
+		<result property="course" column="course" />
+		<result property="stage" column="stage" />
+		<result property="grade" column="grade" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="area" column="area" />
+		<result property="gender" column="gender" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="RegisterMsg" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="status != null">status,</if>
+			<if test="type != null">type,</if>
+			<if test="num != null">num,</if>
+			<if test="memo != null">memo,</if>
+			<if test="producerTime != null">producertime,</if>
+			<if test="consumerTime != null">consumertime,</if>
+			<if test="uid != null">uid,</if>
+			<if test="password != null">password,</if>
+			<if test="passport != null">passport,</if>
+			<if test="appKey != null">appkey,</if>
+			<if test="mobile != null">mobile,</if>
+			<if test="email != null">email,</if>
+			<if test="realname != null">realname,</if>
+			<if test="idCard != null">idcard,</if>
+			<if test="schoolName != null">schoolname,</if>
+			<if test="course != null">course,</if>
+			<if test="stage != null">stage,</if>
+			<if test="grade != null">grade,</if>
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="area != null">area,</if>
+			<if test="gender != null">gender</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="status != null">#{status},</if>
+			<if test="type != null">#{type},</if>
+			<if test="num != null">#{num},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="producerTime != null">#{producerTime},</if>
+			<if test="consumerTime != null">#{consumerTime},</if>
+			<if test="uid != null">#{uid},</if>
+			<if test="password != null">#{password},</if>
+			<if test="passport != null">#{passport},</if>
+			<if test="appKey != null">#{appKey},</if>
+			<if test="mobile != null">#{mobile},</if>
+			<if test="email != null">#{email},</if>
+			<if test="realname != null">#{realname},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="schoolName != null">#{schoolName},</if>
+			<if test="course != null">#{course},</if>
+			<if test="stage != null">#{stage},</if>
+			<if test="grade != null">#{grade},</if>
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="area != null">#{area},</if>
+			<if test="gender != null">#{gender}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.status},#{item.type},#{item.num},#{item.memo},#{item.producerTime},#{item.consumerTime},#{item.uid},#{item.password},#{item.passport},#{item.appKey},#{item.mobile},#{item.email},#{item.realname},#{item.idCard},#{item.schoolName},#{item.course},#{item.stage},#{item.grade},#{item.province},#{item.city},#{item.area},#{item.gender})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="registerMsg">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="registerMsg" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="RegisterMsg">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			status = #{status},
+			type = #{type},
+			num = #{num},
+			memo = #{memo},
+			producertime = #{producerTime},
+			consumertime = #{consumerTime},
+			uid = #{uid},
+			password = #{password},
+			passport = #{passport},
+			appkey = #{appKey},
+			mobile = #{mobile},
+			email = #{email},
+			realname = #{realname},
+			idcard = #{idCard},
+			schoolname = #{schoolName},
+			course = #{course},
+			stage = #{stage},
+			grade = #{grade},
+			province = #{province},
+			city = #{city},
+			area = #{area},
+			gender = #{gender}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="status != null and status !=''"> 
+				<if test="statusLike == false"> and status=#{status}</if>
+				<if test="statusLike == true"> and status like  CONCAT('%',#{status},'%')</if>
+			</if>
+			<if test="type != null and type !=''"> 
+				<if test="typeLike == false"> and type=#{type}</if>
+				<if test="typeLike == true"> and type like  CONCAT('%',#{type},'%')</if>
+			</if>
+			<if test="num != null and num !=''"> 
+				<if test="numLike == false"> and num=#{num}</if>
+				<if test="numLike == true"> and num like  CONCAT('%',#{num},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and memo=#{memo}</if>
+				<if test="memoLike == true"> and memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="producerTime != null and producerTime !=''"> 
+				<if test="producerTimeLike == false"> and producertime=#{producerTime}</if>
+				<if test="producerTimeLike == true"> and producertime like  CONCAT('%',#{producerTime},'%')</if>
+			</if>
+			<if test="consumerTime != null and consumerTime !=''"> 
+				<if test="consumerTimeLike == false"> and consumertime=#{consumerTime}</if>
+				<if test="consumerTimeLike == true"> and consumertime like  CONCAT('%',#{consumerTime},'%')</if>
+			</if>
+			<if test="uid != null and uid !=''"> 
+				<if test="uidLike == false"> and uid=#{uid}</if>
+				<if test="uidLike == true"> and uid like  CONCAT('%',#{uid},'%')</if>
+			</if>
+			<if test="password != null and password !=''"> 
+				<if test="passwordLike == false"> and password=#{password}</if>
+				<if test="passwordLike == true"> and password like  CONCAT('%',#{password},'%')</if>
+			</if>
+			<if test="passport != null and passport !=''"> 
+				<if test="passportLike == false"> and passport=#{passport}</if>
+				<if test="passportLike == true"> and passport like  CONCAT('%',#{passport},'%')</if>
+			</if>
+			<if test="appKey != null and appKey !=''"> 
+				<if test="appKeyLike == false"> and appkey=#{appKey}</if>
+				<if test="appKeyLike == true"> and appkey like  CONCAT('%',#{appKey},'%')</if>
+			</if>
+			<if test="mobile != null and mobile !=''"> 
+				<if test="mobileLike == false"> and mobile=#{mobile}</if>
+				<if test="mobileLike == true"> and mobile like  CONCAT('%',#{mobile},'%')</if>
+			</if>
+			<if test="email != null and email !=''"> 
+				<if test="emailLike == false"> and email=#{email}</if>
+				<if test="emailLike == true"> and email like  CONCAT('%',#{email},'%')</if>
+			</if>
+			<if test="realname != null and realname !=''"> 
+				<if test="realnameLike == false"> and realname=#{realname}</if>
+				<if test="realnameLike == true"> and realname like  CONCAT('%',#{realname},'%')</if>
+			</if>
+			<if test="idCard != null and idCard !=''"> 
+				<if test="idCardLike == false"> and idcard=#{idCard}</if>
+				<if test="idCardLike == true"> and idcard like  CONCAT('%',#{idCard},'%')</if>
+			</if>
+			<if test="schoolName != null and schoolName !=''"> 
+				<if test="schoolNameLike == false"> and schoolname=#{schoolName}</if>
+				<if test="schoolNameLike == true"> and schoolname like  CONCAT('%',#{schoolName},'%')</if>
+			</if>
+			<if test="course != null and course !=''"> 
+				<if test="courseLike == false"> and course=#{course}</if>
+				<if test="courseLike == true"> and course like  CONCAT('%',#{course},'%')</if>
+			</if>
+			<if test="stage != null and stage !=''"> 
+				<if test="stageLike == false"> and stage=#{stage}</if>
+				<if test="stageLike == true"> and stage like  CONCAT('%',#{stage},'%')</if>
+			</if>
+			<if test="grade != null and grade !=''"> 
+				<if test="gradeLike == false"> and grade=#{grade}</if>
+				<if test="gradeLike == true"> and grade like  CONCAT('%',#{grade},'%')</if>
+			</if>
+			<if test="province != null and province !=''"> 
+				<if test="provinceLike == false"> and province=#{province}</if>
+				<if test="provinceLike == true"> and province like  CONCAT('%',#{province},'%')</if>
+			</if>
+			<if test="city != null and city !=''"> 
+				<if test="cityLike == false"> and city=#{city}</if>
+				<if test="cityLike == true"> and city like  CONCAT('%',#{city},'%')</if>
+			</if>
+			<if test="area != null and area !=''"> 
+				<if test="areaLike == false"> and area=#{area}</if>
+				<if test="areaLike == true"> and area like  CONCAT('%',#{area},'%')</if>
+			</if>
+			<if test="gender != null and gender !=''"> 
+				<if test="genderLike == false"> and gender=#{gender}</if>
+				<if test="genderLike == true"> and gender like  CONCAT('%',#{gender},'%')</if>
+			</if>
+			
+			<if test="selectJoinFlag == true">
+				<if test="joinPids.size()>0">
+					and status in
+					<foreach collection="joinPids" index="index" separator="," item="joinPid" open="(" close=")">
+						#{joinPid}
+					</foreach>
+				</if>
+				<if test="joinPids.size()==0">
+					and 1=0
+				</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="RegisterMsgQuery" resultMap="registerMsg">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="RegisterMsgQuery" resultMap="registerMsg">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="RegisterMsgQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+</mapper>

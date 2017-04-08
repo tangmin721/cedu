@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.basic.dao.TeacherAcademicDao">
+	
+	<sql id="table"> t_tch_academic </sql>
+	<sql id="columns"> id,version,createtime,deleted,tid,name,publishdate,pnum,zsize,publishsource,memo,roleType,seq </sql>
+	
+	<resultMap id="teacherAcademic" type="TeacherAcademic">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="tid" column="tid" />
+		<result property="name" column="name" />
+		<result property="publishDate" column="publishdate" />
+		<result property="pnum" column="pnum" />
+		<result property="zsize" column="zsize" />
+		<result property="publishSource" column="publishsource" />
+		<result property="roleType" column="roleType" />
+		<result property="memo" column="memo" />
+		<result property="seq" column="seq" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="TeacherAcademic" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="tid != null">tid,</if>
+			<if test="name != null">name,</if>
+			<if test="publishDate != null">publishdate,</if>
+			<if test="pnum != null">pnum,</if>
+			<if test="zsize != null">zsize,</if>
+			<if test="publishSource != null">publishsource,</if>
+			<if test="roleType != null">roleType,</if>
+			<if test="memo != null">memo,</if>
+			<if test="seq != null">seq</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="tid != null">#{tid},</if>
+			<if test="name != null">#{name},</if>
+			<if test="publishDate != null">#{publishDate},</if>
+			<if test="pnum != null">#{pnum},</if>
+			<if test="zsize != null">#{zsize},</if>
+			<if test="publishSource != null">#{publishSource},</if>
+			<if test="roleType != null">#{roleType},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="seq != null">#{seq}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.tid},#{item.name},#{item.publishDate},#{item.pnum},#{item.zsize},#{item.publishSource},#{item.roleType},#{item.memo},#{item.seq})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="teacherAcademic">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="teacherAcademic" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="TeacherAcademic">
+		update
+		<include refid="table" />
+		<set>
+			deleted = #{deleted},
+			tid = #{tid},
+			name = #{name},
+			publishdate = #{publishDate},
+			pnum = #{pnum},
+			zsize = #{zsize},
+			publishsource = #{publishSource},
+			roleType = #{roleType},
+			memo = #{memo},
+			seq = #{seq}
+		</set>
+		<where>
+			id = #{id} 
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="tid != null and tid !=''"> 
+				<if test="tidLike == false"> and tid=#{tid}</if>
+				<if test="tidLike == true"> and tid like  CONCAT('%',#{tid},'%')</if>
+			</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and name=#{name}</if>
+				<if test="nameLike == true"> and name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="publishDate != null and publishDate !=''"> 
+				<if test="publishDateLike == false"> and publishdate=#{publishDate}</if>
+				<if test="publishDateLike == true"> and publishdate like  CONCAT('%',#{publishDate},'%')</if>
+			</if>
+			<if test="pnum != null and pnum !=''"> 
+				<if test="pnumLike == false"> and pnum=#{pnum}</if>
+				<if test="pnumLike == true"> and pnum like  CONCAT('%',#{pnum},'%')</if>
+			</if>
+			<if test="zsize != null and zsize !=''"> 
+				<if test="zsizeLike == false"> and zsize=#{zsize}</if>
+				<if test="zsizeLike == true"> and zsize like  CONCAT('%',#{zsize},'%')</if>
+			</if>
+			<if test="publishSource != null and publishSource !=''"> 
+				<if test="publishSourceLike == false"> and publishsource=#{publishSource}</if>
+				<if test="publishSourceLike == true"> and publishsource like  CONCAT('%',#{publishSource},'%')</if>
+			</if>
+			<if test="roleType != null and roleType !=''"> 
+				<if test="roleTypeLike == false"> and roleType=#{roleType}</if>
+				<if test="roleTypeLike == true"> and roleType like  CONCAT('%',#{roleType},'%')</if>
+			</if>
+			<if test="memo != null and memo !=''"> 
+				<if test="memoLike == false"> and memo=#{memo}</if>
+				<if test="memoLike == true"> and memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="seq != null and seq !=''"> 
+				<if test="seqLike == false"> and seq=#{seq}</if>
+				<if test="seqLike == true"> and seq like  CONCAT('%',#{seq},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="TeacherAcademicQuery" resultMap="teacherAcademic">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="TeacherAcademicQuery" resultMap="teacherAcademic">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="TeacherAcademicQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" /> where tid=#{tid}
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--根据tid批量删除-->
+	<delete id="deleteByTid" parameterType="long">
+		delete from <include refid="table" /> where tid = #{tid}
+	</delete>
+</mapper>

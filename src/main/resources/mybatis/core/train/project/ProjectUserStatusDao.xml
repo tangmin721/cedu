@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectUserStatusDao">
+	
+	<sql id="table"> t_project_user_status </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,school,loginname,usertype,status,pid </sql>
+	
+	<resultMap id="projectUserStatus" type="ProjectUserStatus">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="province" column="province" />
+		<result property="city" column="city" />
+		<result property="town" column="town" />
+		<result property="school" column="school" />
+		<result property="loginName" column="loginname" />
+		<result property="userType" column="usertype" />
+		<result property="status" column="status" />
+		<result property="pid" column="pid" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="ProjectUserStatus" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="loginName != null">loginname,</if>
+			<if test="userType != null">usertype,</if>
+			<if test="status != null">status,</if>
+			<if test="pid != null">pid</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="loginName != null">#{loginName},</if>
+			<if test="userType != null">#{userType},</if>
+			<if test="status != null">#{status},</if>
+			<if test="pid != null">#{pid}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.province},#{item.city},#{item.town},#{item.school},#{item.loginName},#{item.userType},#{item.status},#{item.pid})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="projectUserStatus">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="projectUserStatus" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="ProjectUserStatus">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			loginname = #{loginName},
+			usertype = #{userType},
+			status = #{status},
+			pid = #{pid}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" />
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and deleted=#{deleted}</if>
+			<if test="province != null and province !=''"> 
+				<if test="provinceLike == false"> and province=#{province}</if>
+				<if test="provinceLike == true"> and province like  CONCAT('%',#{province},'%')</if>
+			</if>
+			<if test="city != null and city !=''"> 
+				<if test="cityLike == false"> and city=#{city}</if>
+				<if test="cityLike == true"> and city like  CONCAT('%',#{city},'%')</if>
+			</if>
+			<if test="town != null and town !=''"> 
+				<if test="townLike == false"> and town=#{town}</if>
+				<if test="townLike == true"> and town like  CONCAT('%',#{town},'%')</if>
+			</if>
+			<if test="school != null and school !=''"> 
+				<if test="schoolLike == false"> and school=#{school}</if>
+				<if test="schoolLike == true"> and school like  CONCAT('%',#{school},'%')</if>
+			</if>
+			<if test="loginName != null and loginName !=''"> 
+				<if test="loginNameLike == false"> and loginname=#{loginName}</if>
+				<if test="loginNameLike == true"> and loginname like  CONCAT('%',#{loginName},'%')</if>
+			</if>
+			<if test="userType != null and userType !=''"> 
+				<if test="userTypeLike == false"> and usertype=#{userType}</if>
+				<if test="userTypeLike == true"> and usertype like  CONCAT('%',#{userType},'%')</if>
+			</if>
+			<if test="status != null and status !=''"> 
+				<if test="statusLike == false"> and status=#{status}</if>
+				<if test="statusLike == true"> and status like  CONCAT('%',#{status},'%')</if>
+			</if>
+			<if test="pid != null and pid !=''"> 
+				<if test="pidLike == false"> and pid=#{pid}</if>
+				<if test="pidLike == true"> and pid like  CONCAT('%',#{pid},'%')</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectUserStatusQuery" resultMap="projectUserStatus">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectUserStatusQuery" resultMap="projectUserStatus">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectUserStatusQuery" resultType="long">
+		select count(1) from <include refid="table" />
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	
+	<!--一个项目，一个省市县校只有一条状态记录-->
+	<select id="selectOneStatus" resultMap="projectUserStatus">
+	SELECT
+		s.*
+	FROM
+		<include refid="table" /> s
+	WHERE
+		s.pid = #{pid}
+	AND s.province = #{province}
+	AND s.city = #{city}
+	AND s.town = #{town}
+	AND s.school = #{school}
+	AND s.usertype = #{userType}
+	</select>
+</mapper>

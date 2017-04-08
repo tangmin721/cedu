@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yanxiu.ce.core.train.dao.ProjectDao">
+	
+	<sql id="table"> t_project </sql>
+	<sql id="columns"> id,version,createtime,deleted,province,city,town,school,name,pno,stage,course,trainlevel,traintype,schoolyear,hour,startdate,enddate,description,implway,scorecreatetype,memo,usertype,status,cstatus,coption,facedepts,teachertypes,personnum,goodscore,passscore  </sql>
+	
+	<sql id="listcolumns"> o.*,p.provincename,c.cityname,t.townname,s.name as schoolname,
+		stage.name as stagename,course.name as coursename, traintype.name as traintypename,schoolyear.name as schoolyearname,trainlevel.name as trainlevelname
+	</sql>
+	
+	<resultMap id="project" type="Project">
+		<result property="id" column="id" />
+		<result property="version" column="version" />
+		<result property="createTime" column="createtime" />
+		<result property="deleted" column="deleted" />
+		<result property="userId" column="userid" />
+		<result property="province" column="province" />
+		<result property="provinceName" column="provincename" />
+		<result property="city" column="city" />
+		<result property="cityName" column="cityname" />
+		<result property="town" column="town" />
+		<result property="townName" column="townname" />
+		<result property="school" column="school" />
+		<result property="schoolName" column="schoolname" />
+		<result property="name" column="name" />
+		<result property="pno" column="pno" />
+		<result property="stage" column="stage" />
+		<result property="stageName" column="stagename" />
+		<result property="course" column="course" />
+		<result property="courseName" column="courseName" />
+		<result property="trainLevel" column="trainlevel" />
+		<result property="trainLevelName" column="trainlevelname" />
+		<result property="trainType" column="traintype" />
+		<result property="trainTypeName" column="traintypename" />
+		<result property="schoolYear" column="schoolyear" />
+		<result property="schoolYearName" column="schoolyearname" />
+		<result property="hour" column="hour" />
+		<result property="startDate" column="startdate" />
+		<result property="endDate" column="enddate" />
+		<result property="description" column="description" />
+		<result property="implWay" column="implway" />
+		<result property="scoreCreateType" column="scorecreatetype" />
+		<result property="memo" column="memo" />
+		<result property="userType" column="usertype" />
+		<result property="status" column="status" />
+		<result property="cstatus" column="cstatus" />
+		<result property="coption" column="coption" />
+		<result property="faceDepts" column="facedepts" />
+		<result property="teacherTypes" column="teachertypes" />
+		<result property="personNum" column="personnum" />
+		<result property="goodScore" column="goodscore" />
+		<result property="passScore" column="passscore" />
+	</resultMap>
+	
+	<!--单条插入-->
+	<insert id="insert" parameterType="Project" keyProperty="id" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			version,createtime,deleted,
+			<if test="userId != null">userid,</if>
+			<if test="province != null">province,</if>
+			<if test="city != null">city,</if>
+			<if test="town != null">town,</if>
+			<if test="school != null">school,</if>
+			<if test="name != null">name,</if>
+			<if test="pno != null">pno,</if>
+			<if test="stage != null">stage,</if>
+			<if test="course != null">course,</if>
+			<if test="trainLevel != null">trainlevel,</if>
+			<if test="trainType != null">traintype,</if>
+			<if test="schoolYear != null">schoolyear,</if>
+			<if test="hour != null">hour,</if>
+			<if test="startDate != null">startdate,</if>
+			<if test="endDate != null">enddate,</if>
+			<if test="description != null">description,</if>
+			<if test="implWay != null">implway,</if>
+			<if test="scoreCreateType != null">scorecreatetype,</if>
+			<if test="memo != null">memo,</if>
+			<if test="userType != null">usertype,</if>
+			<if test="status != null">status,</if>
+			<if test="cstatus != null">cstatus,</if>
+			<if test="coption != null">coption,</if>
+			<if test="faceDepts != null">facedepts,</if>
+			<if test="teacherTypes != null">teachertypes,</if>
+			<if test="personNum != null">personnum,</if>
+			<if test="goodScore != null">goodscore,</if>
+			<if test="passScore != null">passscore</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			0,#{createTime},#{deleted},
+			<if test="userId != null">#{userId},</if>
+			<if test="province != null">#{province},</if>
+			<if test="city != null">#{city},</if>
+			<if test="town != null">#{town},</if>
+			<if test="school != null">#{school},</if>
+			<if test="name != null">#{name},</if>
+			<if test="pno != null">#{pno},</if>
+			<if test="stage != null">#{stage},</if>
+			<if test="course != null">#{course},</if>
+			<if test="trainLevel != null">#{trainLevel},</if>
+			<if test="trainType != null">#{trainType},</if>
+			<if test="schoolYear != null">#{schoolYear},</if>
+			<if test="hour != null">#{hour},</if>
+			<if test="startDate != null">#{startDate},</if>
+			<if test="endDate != null">#{endDate},</if>
+			<if test="description != null">#{description},</if>
+			<if test="implWay != null">#{implWay},</if>
+			<if test="scoreCreateType != null">${scoreCreateType},</if>
+			<if test="memo != null">#{memo},</if>
+			<if test="userType != null">#{userType},</if>
+			<if test="status != null">#{status},</if>
+			<if test="cstatus != null">#{cstatus},</if>
+			<if test="coption != null">#{coption},</if>
+			<if test="faceDepts != null">#{faceDepts},</if>
+			<if test="teacherTypes != null">#{teacherTypes},</if>
+			<if test="personNum != null">#{personNum},</if>
+			<if test="goodScore != null">#{goodScore},</if>
+			<if test="passScore != null">#{passScore}</if>
+		</trim>
+	</insert>
+	
+	<!--批量插入-->
+	<insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into
+		<include refid="table" />
+		(<include refid="columns" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(null,0,#{item.createTime},#{item.deleted},#{item.userId},#{item.province},#{item.city},#{item.town},#{item.school},#{item.name},#{item.pno},#{item.stage},#{item.course},
+			#{item.trainLevel},#{item.trainType},#{item.schoolYear},#{item.term},#{item.hour},#{item.startDate},#{item.endDate},
+			#{item.description},#{item.implWay},#{item.scoreCreateType},#{item.memo},#{item.userType},#{item.status},#{item.cstatus},
+			#{item.coption},#{item.faceDepts},#{item.teacherTypes},#{item.personNum},#{item.goodScore},#{item.passScore})
+		</foreach>
+	</insert>
+	
+	<!-- 根据主键查询 -->
+	<select id="selectById" parameterType="long" resultMap="project">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据pNo查询 -->
+	<select id="selectByPno" parameterType="long" resultMap="project">
+		select <include refid="columns" /> from <include refid="table" />
+		where
+		pno=#{pno}
+	</select>
+	
+	<!-- 根据主键批量查询 -->
+	<select id="selectByIds" parameterType="java.util.List" resultMap="project" >
+		select <include refid="columns" /> from <include refid="table" />
+		where id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!--根据项目id改变状态-->
+	<update id="updateStatus">
+		update <include refid="table" /> set status=#{status} 
+		<where>
+			id = #{id} 
+		</where>
+	</update>
+	
+	<update id="updateCstatus">
+		update <include refid="table" /> set cstatus=#{cstatus} ,coption = #{coption}
+		<where>
+			id = #{id} 
+		</where>
+	</update>
+	
+	<!-- 单条更新:version+1 实现乐观锁 -->
+	<update id="update" parameterType="Project">
+		update
+		<include refid="table" />
+		<set>
+			version = #{version}+1 ,
+			deleted = #{deleted},
+			userid = #{userId},
+			province = #{province},
+			city = #{city},
+			town = #{town},
+			school = #{school},
+			name = #{name},
+			stage = #{stage},
+			course = #{course},
+			trainlevel = #{trainLevel},
+			traintype = #{trainType},
+			schoolyear = #{schoolYear},
+			hour = #{hour},
+			startdate = #{startDate},
+			enddate = #{endDate},
+			description = #{description},
+			implway = #{implWay},
+			scorecreatetype = #{scoreCreateType},
+			memo = #{memo},
+			usertype = #{userType},
+			facedepts = #{faceDepts},
+			teachertypes = #{teacherTypes},
+			personnum = #{personNum},
+			goodscore = #{goodScore},
+			passscore = #{passScore}
+		</set>
+		<where>
+			id = #{id} and version = #{version}
+		</where>
+	</update>
+	
+	<!-- 根据id彻底删除 -->
+	<delete id="deleteById" parameterType="long">
+		delete from <include refid="table" />
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据主键批量删除 -->
+	<delete id="deleteByIds" parameterType="java.util.List">
+		delete from <include refid="table" />
+		where
+		id in
+		<foreach collection="list" separator="," item="id" open="(" close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<!--片段list字段查询器-->
+	<sql id="selectorFields">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="columns" />
+		</if>
+		from  <include refid="table" /> o
+	</sql>
+	
+	<!--片段list字段查询器 ，仅供多表关联名称-->
+	<sql id="selectorFieldsForPage">
+		select
+		<if test="fields != null">
+			${fields}
+		</if>
+		<if test="fields == null">
+			<include refid="listcolumns" />
+		</if>
+		from  <include refid="table" /> o
+		LEFT JOIN t_school s ON o.school=s.id
+	 	left join sys_area_province p on o.province=p.provinceno
+	 	left join sys_area_city c on o.city=c.cityno
+	 	left join sys_area_town t on o.town=t.townno
+	 	LEFT JOIN t_conf_stage stage ON stage.id = o.stage
+		LEFT JOIN t_conf_course course ON course.id = o.course
+		left join sys_dict_item trainlevel on trainlevel.id=o.trainlevel
+	 	left join sys_dict_item traintype on traintype.id=o.traintype
+	 	left join sys_dict_item schoolyear on schoolyear.id=o.schoolyear
+	</sql>
+	
+	<!--片段list条件判断-->
+	<sql id="selectorWhere">
+		<where>
+			<if test="deleted != null and deleted !=''"> and o.deleted=#{deleted}</if>
+			<if test="province != null and province !='' and province !=0 and province !=-1"> and o.province=#{province}</if>
+			<if test="province == -1"> and o.province!=0</if>
+			<if test="city != null and city !='' and city !=0 and city !=-1"> and o.city=#{city}</if>
+			<if test="city == -1"> and o.city!=0</if>
+			<if test="town != null and town !='' and town !=0 and town !=-1"> and o.town=#{town}</if>
+			<if test="town == -1"> and o.town!=0</if>
+			<if test="school != null and school !='' and school !=0 and school !=-1"> and o.school=#{school}</if>
+			<if test="school == -1"> and o.school!=0</if>
+			<if test="userId != null and userId !=''"> 
+				<if test="notMy == true">
+					and o.userid!=#{userId}	
+				</if>
+				<if test="notMy == false"> 
+					and o.userid=#{userId}
+				</if>
+			</if>
+			<if test="name != null and name !=''"> 
+				<if test="nameLike == false"> and o.name=#{name}</if>
+				<if test="nameLike == true"> and o.name like  CONCAT('%',#{name},'%')</if>
+			</if>
+			<if test="pno != null and pno !=''"> 
+				<if test="pnoLike == false"> and o.pno=#{pno}</if>
+				<if test="pnoLike == true"> and o.pno like  CONCAT('%',#{pno},'%')</if>
+			</if>
+			<if test="stage != null and stage !=''"> 
+				<if test="stageLike == false"> and o.stage=#{stage}</if>
+				<if test="stageLike == true"> and o.stage like  CONCAT('%',#{stage},'%')</if>
+			</if>
+			<if test="course != null and course !=''"> 
+				<if test="courseLike == false"> and o.course=#{course}</if>
+				<if test="courseLike == true"> and o.course like  CONCAT('%',#{course},'%')</if>
+			</if>
+			<if test="trainLevel != null and trainLevel !=''"> 
+				and o.trainlevel=#{trainLevel}
+			</if>
+			<if test="trainType != null and trainType !=''"> 
+				<if test="trainTypeLike == false"> and o.traintype=#{trainType}</if>
+				<if test="trainTypeLike == true"> and o.traintype like  CONCAT('%',#{trainType},'%')</if>
+			</if>
+			<if test="schoolYear != null and schoolYear !=''"> 
+				<if test="schoolYearLike == false"> and o.schoolyear=#{schoolYear}</if>
+				<if test="schoolYearLike == true"> and o.schoolyear like  CONCAT('%',#{schoolYear},'%')</if>
+			</if>
+			<if test="hour != null and hour !=''"> 
+				<if test="hourLike == false"> and o.hour=#{hour}</if>
+				<if test="hourLike == true"> and o.hour like  CONCAT('%',#{hour},'%')</if>
+			</if>
+			<if test="startDate != null and startDate !=''"> 
+				<if test="startDateLike == false"> and o.startdate=#{startDate}</if>
+				<if test="startDateLike == true"> and o.startdate like  CONCAT('%',#{startDate},'%')</if>
+			</if>
+			<if test="endDate != null and endDate !=''"> 
+				<if test="endDateLike == false"> and o.enddate=#{endDate}</if>
+				<if test="endDateLike == true"> and o.enddate like  CONCAT('%',#{endDate},'%')</if>
+			</if>
+			<if test="description != null and description !=''"> 
+				<if test="descriptionLike == false"> and o.description=#{description}</if>
+				<if test="descriptionLike == true"> and o.description like  CONCAT('%',#{description},'%')</if>
+			</if>
+			<if test="implWay != null and implWay !=''"> 
+				<if test="implWayLike == false"> and o.implway=#{implWay}</if>
+				<if test="implWayLike == true"> and o.implway like  CONCAT('%',#{implWay},'%')</if>
+			</if>
+			<if test="scoreCreateType != null and scoreCreateType !=''"> and o.scorecreatetype=#{scoreCreateType}</if>
+			<if test="memo != null and memo !=''">
+				<if test="memoLike == false"> and o.memo=#{memo}</if>
+				<if test="memoLike == true"> and o.memo like  CONCAT('%',#{memo},'%')</if>
+			</if>
+			<if test="userType != null and userType !=''"> 
+				<if test="userTypeLike == false"> and o.usertype=#{userType}</if>
+				<if test="userTypeLike == true"> and o.usertype like  CONCAT('%',#{userType},'%')</if>
+			</if>
+			<if test="status != null and status !=''">  and o.status=#{status}</if>
+			
+			<if test="cstatus != null and cstatus !=''"> and o.cstatus=#{cstatus}</if>
+				
+			<if test="notEqStatus != null and notEqStatus !=''"> and o.status!=#{notEqStatus}</if>
+
+			<if test="notEqTrainLevel != null and notEqTrainLevel !=''"> and o.trainLevel!=#{notEqTrainLevel}</if>
+
+			<if test="selectJoinFlag == true">
+				<if test="joinPids.size()>0">
+					and o.id in
+					<foreach collection="joinPids" index="index" separator="," item="joinPid" open="(" close=")">
+						#{joinPid}
+					</foreach>
+				</if>
+				<if test="joinPids.size()==0">
+					and 1=0
+				</if>
+			</if>
+			<!--<if test="startTime != null"> and birthday <![CDATA[   >=  ]]>#{startTime} </if>
+			<if test="endTime != null"> and  birthday <![CDATA[   <  ]]> #{endTime}</if>
+			-->
+		</where>
+	</sql>
+	
+	<!--片段list排序-->
+	<sql id="selectorOrder">
+		<if test="orderFields != null and orderFields.size >0">
+			order by
+			<foreach collection="orderFields" separator="," item="orderField">
+				o.${orderField.fieldName} ${orderField.order}
+			</foreach>
+		</if>
+	</sql>
+	
+	<!--片段list分页-->
+	<sql id="selectorLimit">
+		<if test="startRow != null">
+			limit  #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	<!--查询所有记录-->
+	<select id="selectList" parameterType="ProjectQuery" resultMap="project">
+		<include refid="selectorFields" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+	</select>
+	
+	<!-- 分页 -->
+	<select id="selectListPage" parameterType="ProjectQuery" resultMap="project">
+		<include refid="selectorFieldsForPage" />
+		<include refid="selectorWhere" />
+		<include refid="selectorOrder" />
+		<include refid="selectorLimit" />
+	</select>
+	
+	<!--总条数-->
+	<select id="selectListTotal" parameterType="ProjectQuery" resultType="long">
+		select count(1) from <include refid="table" /> o
+		<include refid="selectorWhere" />
+	</select>
+	
+	<!--///////////////////////////////自定义/////////////////////////-->
+		<!--获取school编号序列-->
+	<select id="nextSequenceVal" resultType="long">
+		SELECT  FUN_SEQ('PROJECT_NO_SEQ')
+	</select>
+	
+	<!--获取最大排序号-->
+	<select id="selectMaxSeq" resultType="int">
+		select max(seq) from <include refid="table" />
+	</select>
+	
+	<!--校验Name是否存在-->
+	<select id="selectCheckNameExit" resultType="long">
+		select count(1) from <include refid="table" />
+		<where>
+			<if test="name != null and  name !=''"> and name=#{name}</if>
+			<if test="id != null and  id !=''"> and id!=#{id}</if>
+		</where>
+	</select>
+	
+	<!--获取 根据currentUser获取与我相关的pid集合    我未参加的项目-->
+	<select id="getJoinPids" resultType="long">
+		SELECT
+			q.pid
+		FROM
+			t_project_quota q,
+			t_project_user_status u
+		WHERE
+			q.province = #{province}
+		AND q.city = #{city}
+		AND q.town = #{town}
+		AND q.school = #{school}
+		AND q.province = u.PROVINCE
+		AND q.city = u.CITY
+		AND q.town = u.TOWN
+		AND q.school = u.SCHOOL
+		AND q.pid = u.pid
+		<if test="type==6 or type==7 or type==9"> 
+			and u.loginname=#{loginName}
+		</if>
+		AND u.`STATUS`=#{status}
+	</select>
+	
+	<!--获取 根据loginName 获取本机构相关的项目id-->
+	<select id="getOrgJoinPids" resultType="long">
+		SELECT
+			po.pid
+		FROM
+			t_project_trainorg po
+		LEFT JOIN t_train_org org ON po.orgid = org.id
+		WHERE
+			org.ORGNO = #{loginName}
+	</select>
+	
+	
+	
+</mapper>
